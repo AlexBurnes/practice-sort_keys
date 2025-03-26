@@ -3,3 +3,5 @@ missingIncludeSystem
 unusedFunction
 unmatchedSuppression
 unreadVariable:*/src/test/bench.cpp:*
+*:src/include/sparsepp/spp.h
+*:src/include/sparsepp/spp_utils.h

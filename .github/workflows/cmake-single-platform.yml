@@ -55,5 +55,5 @@ jobs:
       run: ctest -C ${{env.BUILD_TYPE}} -T Coverage
 
     - name: Source post-checks memory leaks
-      working-directory: ${{github.workspace}}/build
-      run: scripts/mem-check ./src/test/test_sort_keys
+      working-directory: ${{github.workspace}}
+      run: scripts/mem-check build/src/test/test_sort_keys

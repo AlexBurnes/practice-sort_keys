@@ -19,7 +19,7 @@ TEST(TestSortKeysValuesInt, SortKeys) {
         {4, 4},
         {2, 2}
     };
-    std::vector<int> sorted = sort_keys(map);
+    auto sorted = sort_keys<std::vector<int>, decltype(map)>(map);
     std::vector<int> expect = {1, 2, 3, 4, 5};
     EXPECT_THAT(sorted, ::testing::ContainerEq(expect));
 }
@@ -32,7 +32,7 @@ TEST(TestSortKeysValuesString, SortKeys) {
         {4, "4"},
         {2, "2"}
     };
-    std::vector<int> sorted = sort_keys(map);
+    auto sorted = sort_keys<std::vector<int>, decltype(map)>(map);
     std::vector<int> expect = {1, 2, 3, 4, 5};
     EXPECT_THAT(sorted, ::testing::ContainerEq(expect));
 }
@@ -42,6 +42,6 @@ TEST(TestSortKeysValuesInt, SortBig) {
     for (size_t i = 0; i < 1e6; i++) {
         map[std::rand()] = std::rand();
     }
-    std::vector<int> sorted = sort_keys(map);
+    auto sorted = sort_keys<std::vector<int32_t>, decltype(map)>(map);
     EXPECT_TRUE(std::is_sorted(sorted.begin(), sorted.end()));
 }

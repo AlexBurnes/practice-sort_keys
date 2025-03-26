@@ -36,6 +36,7 @@ Open in a browser [Coverage](http://localhost:8081)
 
 ## TODO
 
-* [ ] Github CI
-* [ ] Benchmark other STL containers
+* [*] Github CI, but there is a troubles with cppcheck
+* [*] Benchmark other STL containers
 * [ ] Benchmakr memory usage, example https://github.com/google/benchmark/issues/1217
+* [ ] CI cppcheck trouble

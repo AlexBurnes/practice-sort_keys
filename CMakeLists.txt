@@ -16,6 +16,9 @@ find_package(range-v3)
 find_package(GTest)
 find_package(gperftools)
 find_package(benchmark)
+find_package(Boost)
+find_package(EASTL)
+find_package(absl)
 
 enable_testing()
 

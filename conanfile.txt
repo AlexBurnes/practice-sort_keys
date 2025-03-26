@@ -4,6 +4,9 @@ gtest/1.14.0
 gperftools/2.15
 range-v3/0.12.0
 benchmark/1.9.0
+boost/1.86.0
+eastl/3.21.12
+abseil/20240722.0
 
 [generators]
 CMakeDeps

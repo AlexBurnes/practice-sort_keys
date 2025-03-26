@@ -36,6 +36,9 @@ target_link_libraries(
     test_bench
         PRIVATE
             benchmark::benchmark_main
+            boost::boost
+            EASTL::EASTL
+            abseil::abseil
 )
 
 add_test(
