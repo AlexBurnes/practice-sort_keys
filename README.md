@@ -2,7 +2,8 @@
 
 Sort keys of unordered map
 
-Library algorithm test as example for students practice.
+Templated library algorithm for different STL containers tests as an example 
+of C++ metaprograming for students practice.
 
 ## Copyright
 
@@ -35,6 +36,6 @@ Open in a browser [Coverage](http://localhost:8081)
 
 ## TODO
 
-[ ] Github CI
-[ ] Benchmark other STL containers
-[ ] Benchmakr memory usage, example https://github.com/google/benchmark/issues/1217
+* [ ] Github CI
+* [ ] Benchmark other STL containers
+* [ ] Benchmakr memory usage, example https://github.com/google/benchmark/issues/1217
