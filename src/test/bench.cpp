@@ -18,7 +18,7 @@ static void sorting(bm::State &state) {
     }
 
     for (auto _ : state) {
-        auto keys [[maybe_unused]] = sort_keys(map);
+        auto keys = sort_keys(map);
         // bm::DoNotOptimize(keys.size());
     }
     state.SetComplexityN(count);
