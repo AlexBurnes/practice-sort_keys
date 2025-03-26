@@ -21,7 +21,7 @@ jobs:
     - name: Install checkers
       run: sudo apt-get update && sudo apt-get install -y valgrind clang-format
 
-    # Disabled, cppcheck suppression work incorrect
+    # Disabled on github, cppcheck suppression work incorrect, on localhost or docker works correctly
     #- name: Source pre-checks cppcheck
     #  working-directory: ${{github.workspace}}
     #  run: scripts/cpp-check
@@ -55,5 +55,5 @@ jobs:
       run: ctest -C ${{env.BUILD_TYPE}} -T Coverage
 
     - name: Source post-checks memory leaks
-      working-directory: ${{github.workspace}}
-      run: scripts/mem-check ./bin/test_sort_keys
+      working-directory: ${{github.workspace}}/build
+      run: scripts/mem-check ./src/test/test_sort_keys
