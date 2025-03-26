@@ -19,7 +19,7 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Install checkers
-      run: apt-get update && apt-get install -y cppcheck
+      run: sudo apt-get update && apt-get install -y cppcheck valgrind clang-format
 
     - name: Source pre-checks cppcheck
       run: scripts/cpp-check
@@ -29,7 +29,7 @@ jobs:
 
     - name: Configure conan 
       run: |
-        apt-get update && apt-get install -y python3 python3-pip
+        sudo apt-get update && apt-get install -y python3 python3-pip
         python3 -m pip install conan
         conan profile detect --force
         cp ~/.conan2/profiles/default ~/.conan2/profiles/debug && sed -i -e 's/Release/Debug/g' ~/.conan2/profiles/debug
