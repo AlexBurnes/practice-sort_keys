@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+set -o errexit
+set -o nounset
+
+CPPCHECK=$(which cppcheck)
+CPPCHECK_OPTIONS="--enable=all --inconclusive"
+if [[ -d "src/include" ]]; then
+    CPPCHECK_INCLUDES="${CPPCHECK_INCLUDES-} -I src/include/"
+fi
+if [[ -d "include" ]]; then
+    CPPCHECK_INCLUDES="${CPPCHECK_INCLUDES-} -I include/"
+fi
+if [[ -f "cppcheck_include.txt" ]]; then
+   CPPCHECK_INCLUDES="${CPPCHECK_INCLUDES-} --include=cppcheck_include.txt"
+fi
+
+[[ -f "cppcheck_suppress.txt" ]] && CPPCHECK_SUPRESS="--suppressions-list=cppcheck_suppress.txt"
+[[ -z "${CPPCHECK_SOURCES-}" ]] && CPPCHECK_SOURCES="$(find src -type d)"
+
+CPPCHECK_CMD="${CPPCHECK} ${CPPCHECK_OPTIONS} ${CPPCHECK_INCLUDES} ${CPPCHECK_SUPRESS-} ${CPPCHECK_SOURCES}"
+${CPPCHECK_CMD}

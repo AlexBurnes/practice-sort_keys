@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+set -o errexit
+set -o nounset
+
+sudo docker build --tag practice_sort_keys:latest --network host --progress=plain .

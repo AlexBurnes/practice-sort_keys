@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -o errexit
+set -o nounset
+conan install . -of .build -pr debug --build missing
+cmake -H. -B.build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake
+cmake --build .build
+cmake --install .build
+ctest --test-dir .build -T Test -V
+ctest --test-dir .build -T Coverage

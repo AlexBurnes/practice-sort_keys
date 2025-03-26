@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+set -o errexit
+set -o nounset
+sudo docker run -d --rm --name practice_sort_keys --publish 8081:80 practice_sort_keys
