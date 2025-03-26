@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-set -x
 set -o errexit
 set -o nounset
 
@@ -21,3 +20,4 @@ fi
 
 CPPCHECK_CMD="${CPPCHECK} ${CPPCHECK_OPTIONS} ${CPPCHECK_INCLUDES} ${CPPCHECK_SUPRESS-} ${CPPCHECK_SOURCES}"
 ${CPPCHECK_CMD}
+exit $?

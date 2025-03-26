@@ -2,3 +2,5 @@ missingInclude
 missingIncludeSystem
 unusedFunction
 unmatchedSuppression
+#*:test/test.cpp
+#*:test/bench.cpp
