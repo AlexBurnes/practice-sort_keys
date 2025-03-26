@@ -33,7 +33,6 @@ echo -e "Style check format \"${STYLE_FILE}\""
 for dir in ${dirs[@]}; do
     echo -e "check style at ${dir}"
     find ${dir} -iname "*.cpp" -o -iname "*.hpp" >> "$tmpfile"
-    find ${dir} -iname "*.c" -o -iname "*.h" >> "$tmpfile"
 done
 ec=0
 while read -r file; do
