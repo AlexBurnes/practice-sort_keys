@@ -19,7 +19,8 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Configure checkers
-      run: apt-get update && apt-get install -y cppcheck clang-format valgrind
+      run: |
+        apt-get update && apt-get install -y cppcheck clang-format valgrind
 
     - name: Source pre-checks cppcheck
       run: scripts/cpp-check
