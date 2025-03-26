@@ -20,7 +20,7 @@ jobs:
 
     - name: Configure checkers
       run: |
-        apt-get update && apt-get install -y cppcheck clang-format valgrind
+        apt-get update && apt-get install -y cppcheck valgrind
 
     - name: Source pre-checks cppcheck
       run: scripts/cpp-check
