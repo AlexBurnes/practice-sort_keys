@@ -2,6 +2,7 @@
 #include <gmock/gmock-more-matchers.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+
 #include <algorithm>
 #include <sort_keys.hpp>
 
@@ -38,7 +39,7 @@ TEST(TestSortKeysValuesString, SortKeys) {
 
 TEST(TestSortKeysValuesInt, SortBig) {
     std::unordered_map<int32_t, int32_t> map;
-    for(size_t i = 0; i < 1e6; i++) {
+    for (size_t i = 0; i < 1e6; i++) {
         map[std::rand()] = std::rand();
     }
     std::vector<int> sorted = sort_keys(map);

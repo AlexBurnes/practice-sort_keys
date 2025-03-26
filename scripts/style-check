@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 
-set -o errexit
 set -o nounset
 
 STYLE_FILE="file:style_format.txt"
@@ -17,7 +16,10 @@ function clang_format() {
         echo -e "$@ not in code style format"
         echo -e "To fix formatting run:"
         echo -e "    clang-format -i --style=\"${STYLE_FILE}\" $@"
+        return 1
     fi
+    echo -e "$@ code style ok"
+    return 0
 }
 
 function clang_fix() {

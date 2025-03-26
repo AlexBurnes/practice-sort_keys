@@ -2,23 +2,24 @@
 
 #include <algorithm>
 #include <numeric>
-#include <vector>
 #include <unordered_map>
+#include <vector>
+
 #include "sort_keys.hpp"
 
 namespace bm = benchmark;
 
 static void sorting(bm::State &state) {
     auto count = static_cast<size_t>(state.range(0));
-    
+
     std::unordered_map<int32_t, int32_t> map(count);
-    for(size_t i = 0; i < count; i++) {
+    for (size_t i = 0; i < count; i++) {
         map[std::rand()] = std::rand();
     }
 
     for (auto _ : state) {
         auto keys = sort_keys(map);
-        //bm::DoNotOptimize(keys.size());
+        // bm::DoNotOptimize(keys.size());
     }
     state.SetComplexityN(count);
     state.SetItemsProcessed(count * state.iterations());
