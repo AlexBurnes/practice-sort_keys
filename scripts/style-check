@@ -16,6 +16,7 @@ function clang_format() {
         echo -e "$@ not in code style format"
         echo -e "To fix formatting run:"
         echo -e "    clang-format -i --style=\"${STYLE_FILE}\" $@"
+        clang-format --output-replacements-xml --style="${STYLE_FILE}" "$@"
         return 1
     fi
     echo -e "$@ code style ok"
