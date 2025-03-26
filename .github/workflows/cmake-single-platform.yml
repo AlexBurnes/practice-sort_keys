@@ -18,6 +18,9 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Install checkers
+      run: apt-get update && apt-get install -y cppcheck
+
     - name: Source pre-checks cppcheck
       run: scripts/cpp-check
 
