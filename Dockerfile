@@ -38,6 +38,7 @@ RUN cmake --install .build
 RUN ctest --test-dir .build -T Test -V
 RUN ctest --test-dir .build -T Coverage
 RUN scripts/mem-check bin/test_sort_keys
+RUN bin/test_bench --benchmark_counters_tabular=true
 
 RUN cd .build/src/test/CMakeFiles/test_sort_keys.dir && \
     lcov --directory . --capture --output-file coverage.info && \

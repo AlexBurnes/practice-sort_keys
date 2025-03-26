@@ -7,3 +7,4 @@ cmake --build .build
 cmake --install .build
 ctest --test-dir .build -T Test -V
 ctest --test-dir .build -T Coverage
+bin/test_bench --benchmark_counters_tabular=true

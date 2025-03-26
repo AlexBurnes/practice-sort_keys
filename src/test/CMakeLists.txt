@@ -39,11 +39,7 @@ target_link_libraries(
             boost::boost
             EASTL::EASTL
             abseil::abseil
-)
-
-add_test(
-    NAME test_bench
-    COMMAND $<TARGET_FILE:test_bench>
+            gperftools::gperftools
 )
 
 

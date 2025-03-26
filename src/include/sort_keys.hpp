@@ -1,4 +1,4 @@
-#include <vector>
+#pragma once
 
 template <typename VectorT, typename MapT>
 VectorT sort_keys(const MapT &map) {

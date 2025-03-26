@@ -21,6 +21,39 @@ void* operator new[](
     return memalign(alignment, size);
 }
 
+#include <gperftools/malloc_hook.h>
+
+#include <cstring>
+
+benchmark::IterationCount g_num_new = 0;
+benchmark::IterationCount g_sum_size_new = 0;
+benchmark::IterationCount g_max_size_new = 0;
+benchmark::IterationCount g_min_size_new = -1;
+auto                      new_hook = [](const void*, size_t size) {
+    ++g_num_new;
+    g_sum_size_new += size;
+    g_max_size_new = std::max((long int)g_max_size_new, (long int)size);
+    g_min_size_new = std::min((long int)g_min_size_new, (long int)size);
+};
+
+#define BENCH_MEM_BEFORE_TEST                                \
+    benchmark::IterationCount num_new = g_num_new;           \
+    benchmark::IterationCount sum_size_new = g_sum_size_new; \
+    g_max_size_new = 0;                                      \
+    g_min_size_new = -1;                                     \
+    MallocHook::AddNewHook(new_hook);
+
+#define BENCH_MEM_AFTER_TEST                                                               \
+    MallocHook::RemoveNewHook(new_hook);                                                   \
+    auto iter = state.iterations();                                                        \
+    state.counters["#new"] = (g_num_new - num_new) / iter;                                 \
+    state.counters["sum_new_B"] = (g_sum_size_new - sum_size_new) / iter;                  \
+    state.counters["avg_new_B"] = (g_sum_size_new - sum_size_new) / (g_num_new - num_new); \
+    state.counters["max_new_B"] = g_max_size_new;                                          \
+    if (((benchmark::IterationCount)-1) != g_min_size_new) {                               \
+        state.counters["min_new_B"] = g_min_size_new;                                      \
+    }
+
 #include <absl/container/flat_hash_map.h>
 #include <absl/container/node_hash_map.h>
 
@@ -34,8 +67,24 @@ namespace bm = benchmark;
 
 unsigned int seed = time(nullptr);
 
+static void memory_test(bm::State& state) {
+    BENCH_MEM_BEFORE_TEST
+    for (auto _ : state) {
+        void* ret1 = malloc(state.range(0));
+        void* ret2 = malloc(state.range(1));
+        void* ret3 = malloc(state.range(2));
+        free(ret1);
+        free(ret2);
+        free(ret3);
+    }
+    BENCH_MEM_AFTER_TEST
+}
+BENCHMARK(memory_test)->Args({32, 128, 32});
+BENCHMARK(memory_test)->Args({320, 640, 960});
+
 template <typename VectorT, typename MapT>
 static void sorting(bm::State& state) {
+    BENCH_MEM_BEFORE_TEST
     auto count = static_cast<size_t>(state.range(0));
     std::srand(seed);
     MapT map(count);
@@ -50,10 +99,12 @@ static void sorting(bm::State& state) {
     state.SetComplexityN(count);
     state.SetItemsProcessed(count * state.iterations());
     state.SetBytesProcessed(count * state.iterations() * sizeof(int32_t) * 2);
+    BENCH_MEM_AFTER_TEST
 }
 
 template <typename MapT>
 static void search(bm::State& state) {
+    BENCH_MEM_BEFORE_TEST
     auto count = static_cast<size_t>(state.range(0));
     std::srand(seed);
     MapT map(count);
@@ -70,6 +121,7 @@ static void search(bm::State& state) {
     state.SetComplexityN(1);
     state.SetItemsProcessed(count * state.iterations());
     state.SetBytesProcessed(count * state.iterations() * sizeof(int32_t) * 2);
+    BENCH_MEM_AFTER_TEST
 }
 
 typedef std::vector<int32_t>                 std_vec;
