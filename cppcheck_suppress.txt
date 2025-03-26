@@ -2,4 +2,4 @@ missingInclude
 missingIncludeSystem
 unusedFunction
 unmatchedSuppression
-unreadVariable:test/bench.cpp:*
+unreadVariable:test/bench.cpp:20
