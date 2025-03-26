@@ -38,6 +38,12 @@ target_link_libraries(
             benchmark::benchmark_main
 )
 
+add_test(
+    NAME test_bench
+    COMMAND $<TARGET_FILE:test_bench>
+)
+
+
 install(
     TARGETS 
         test_sort_keys 
