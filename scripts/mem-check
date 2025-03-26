@@ -3,5 +3,6 @@
 set -o errexit
 set -o nounset
 
-valgrind --tool=memcheck --leak-check=full --track-origins=yes $@
+VALGRIND=$(which valgrind)
+${VALGRIND} --tool=memcheck --leak-check=full --track-origins=yes $@
 exit $?
