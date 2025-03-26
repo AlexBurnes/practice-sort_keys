@@ -19,11 +19,12 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Install checkers
-      run: sudo apt-get update && sudo apt-get install -y valgrind clang-format
+      run: sudo apt-get update && sudo apt-get install -y cppcheck valgrind clang-format
 
     # Disabled, cppcheck suppression work incorrect
-    #- name: Source pre-checks cppcheck
-    #  run: scripts/cpp-check
+    - name: Source pre-checks cppcheck
+      working-directory: ${{github.workspace}}
+      run: scripts/cpp-check
 
     - name: Source pre-checks code style
       run: scripts/style-check
@@ -37,12 +38,13 @@ jobs:
 
     - name: Build third libraries
       run: conan install . -of ${{github.workspace}}/build -pr ${{env.CONAN_PROFILE}} --build missing
-        
+
     - name: Configure CMake
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake
 
     - name: Build
-      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+      working-directory: ${{github.workspace}}
+      run: cmake --build build --config ${{env.BUILD_TYPE}}
 
     - name: Test
       working-directory: ${{github.workspace}}/build
@@ -51,6 +53,7 @@ jobs:
     - name: Test coverage
       working-directory: ${{github.workspace}}/build
       run: ctest -C ${{env.BUILD_TYPE}} -T Coverage
-      
+
     - name: Source post-checks memory leaks
+      working-directory: ${{github.workspace}}
       run: scripts/mem-check
