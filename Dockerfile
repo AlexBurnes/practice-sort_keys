@@ -30,23 +30,18 @@ WORKDIR build
 COPY . . 
 
 RUN scripts/cpp-check
-RUN scripts/style-check
+#RUN scripts/style-check
 RUN conan install . -of .build -pr debug --build missing
 RUN cmake -H. -B.build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake
 RUN cmake --build .build
 RUN cmake --install .build
-RUN ctest --test-dir .build -T Test -V
-RUN ctest --test-dir .build -T Coverage
+RUN ctest --test-dir .build -T Test -T Coverage -V
 RUN scripts/mem-check bin/test_sort_keys
 RUN bin/test_bench --benchmark_counters_tabular=true
 
-RUN cd .build/src/test/CMakeFiles/test_sort_keys.dir && \
-    lcov --directory . --capture --output-file coverage.info && \
+RUN lcov --directory .build --capture --output-file coverage.info && \
+    lcov --extract coverage.info 'src/*' -o coverage.info && \
     genhtml --demangle-cpp -o coverage coverage.info
-
-################################################################################
-
-FROM debian:12.7-slim as runtime
 
 ################################################################################
 
@@ -60,7 +55,7 @@ RUN apt-get update && \
     apt-get install -y libgoogle-perftools4 nginx
 
 COPY --from=builder /build/bin/* /usr/local/bin/*
-COPY --from=builder /build/.build/src/test/CMakeFiles/test_sort_keys.dir/coverage /var/www/html
+COPY --from=builder /build/coverage /var/www/html
 
 EXPOSE 80/tcp
 

@@ -43,15 +43,16 @@ auto                      new_hook = [](const void*, size_t size) {
     g_min_size_new = -1;                                     \
     MallocHook::AddNewHook(new_hook);
 
-#define BENCH_MEM_AFTER_TEST                                                               \
-    MallocHook::RemoveNewHook(new_hook);                                                   \
-    auto iter = state.iterations();                                                        \
-    state.counters["#new"] = (g_num_new - num_new) / iter;                                 \
-    state.counters["sum_new_B"] = (g_sum_size_new - sum_size_new) / iter;                  \
-    state.counters["avg_new_B"] = (g_sum_size_new - sum_size_new) / (g_num_new - num_new); \
-    state.counters["max_new_B"] = g_max_size_new;                                          \
-    if (((benchmark::IterationCount)-1) != g_min_size_new) {                               \
-        state.counters["min_new_B"] = g_min_size_new;                                      \
+#define BENCH_MEM_AFTER_TEST                                                                      \
+    MallocHook::RemoveNewHook(new_hook);                                                          \
+    auto iter = state.iterations();                                                               \
+    state.counters["#new"] = (g_num_new - num_new) / iter;                                        \
+    state.counters["sum_new_B"] = (g_sum_size_new - sum_size_new) / iter;                         \
+    state.counters["avg_new_B"] =                                                                 \
+        (g_num_new - num_new) == 0 ? 0 : (g_sum_size_new - sum_size_new) / (g_num_new - num_new); \
+    state.counters["max_new_B"] = g_max_size_new;                                                 \
+    if (((benchmark::IterationCount) - 1) != g_min_size_new) {                                    \
+        state.counters["min_new_B"] = g_min_size_new;                                             \
     }
 
 #include <absl/container/flat_hash_map.h>
@@ -93,7 +94,7 @@ static void sorting(bm::State& state) {
     }
 
     for (auto _ : state) {
-        auto keys = sort_keys<std::vector<int32_t>, decltype(map)>(map);
+        auto keys = sort_keys<VectorT, decltype(map)>(map);
         // bm::DoNotOptimize(keys.size());
     }
     state.SetComplexityN(count);
@@ -169,3 +170,6 @@ BENCHMARK(search<spp_map>)->Args({size_t(1e6)});
 // ABSEIL
 BENCHMARK(search<absl_flat_map>)->Args({size_t(1e6)});
 BENCHMARK(search<absl_node_map>)->Args({size_t(1e6)});
+
+// BEST
+BENCHMARK(sorting<eastl_vec, spp_map>)->Args({size_t(1e6)});

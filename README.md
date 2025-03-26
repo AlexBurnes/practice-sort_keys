@@ -15,11 +15,14 @@ Aleksey.Ozhigov <burnes@svyazcom.ru>
 
 ## Version
 
-0.1.0
+0.1.3
 
 ## Change log
 
 - 0.1.0 initial version
+- 0.1.1 CI github actions
+- 0.1.2 library containers 
+- 0.1.3 memory benchmark
 
 ## Build
 
@@ -36,5 +39,4 @@ Open in a browser [Coverage](http://localhost:8081)
 
 ## TODO
 
-* [*] Benchmakr memory usage, example https://github.com/google/benchmark/issues/1217
-* [ ] CI cppcheck trouble
+* [%] CI cppcheck trouble
