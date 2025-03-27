@@ -5,6 +5,7 @@ set -o errexit
 set -o nounset
 
 CPPCHECK=$(which cppcheck)
+${CPPCHECK} --version
 CPPCHECK_OPTIONS="--enable=all --inconclusive --error-exitcode=1 --force"
 if [[ -d "src/include" ]]; then
     CPPCHECK_INCLUDES="${CPPCHECK_INCLUDES-} -I src/include/"

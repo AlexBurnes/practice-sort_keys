@@ -27,8 +27,8 @@ jobs:
     #  run: scripts/cpp-check
 
     # Another tool is disabled couse something wrong
-    #- name: Source pre-checks code style
-    #  run: scripts/style-check
+    - name: Source pre-checks code style
+      run: scripts/style-check
 
     - name: Configure conan 
       run: |

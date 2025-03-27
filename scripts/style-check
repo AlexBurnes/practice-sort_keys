@@ -10,6 +10,8 @@ if [[ ${#dirs[@]} -eq 0 ]]; then
     dirs=(src)
 fi
 
+clang-format --version
+
 function clang_format() {
     #echo "verifying 'clang-format --output-replacements-xml --style=\"${STYLE_FILE}\" $@'"
     if clang-format --output-replacements-xml --style="${STYLE_FILE}" "$@" | grep -q '<replacement '; then
