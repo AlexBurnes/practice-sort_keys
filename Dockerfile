@@ -41,7 +41,7 @@ RUN scripts/mem-check bin/test_sort_keys
 RUN bin/test_bench --benchmark_counters_tabular=true
 
 RUN lcov --directory .build --capture --output-file coverage.info
-RUN lcov --extract coverage.info 'src/*' -o coverage.info
+RUN lcov --extract coverage.info '*src/*' -o coverage.info
 RUN genhtml --demangle-cpp -o coverage coverage.info
 
 ################################################################################
