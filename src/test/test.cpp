@@ -37,11 +37,21 @@ TEST(TestSortKeysValuesString, SortKeys) {
     EXPECT_THAT(sorted, ::testing::ContainerEq(expect));
 }
 
-TEST(TestSortKeysValuesInt, SortBig) {
+TEST(TestSortKeysValuesInt, SortBigReturnVector) {
     std::unordered_map<int32_t, int32_t> map;
     for (size_t i = 0; i < 1e6; i++) {
         map[std::rand()] = std::rand();
     }
     auto sorted = sort_keys<std::vector<int32_t>, decltype(map)>(map);
+    EXPECT_TRUE(std::is_sorted(sorted.begin(), sorted.end()));
+}
+
+TEST(TestSortKeysValuesInt, SortBigPassVectorReference) {
+    std::unordered_map<int32_t, int32_t> map;
+    for (size_t i = 0; i < 1e6; i++) {
+        map[std::rand()] = std::rand();
+    }
+    std::vector<int32_t> sorted;
+    sort_keys(sorted, map);
     EXPECT_TRUE(std::is_sorted(sorted.begin(), sorted.end()));
 }

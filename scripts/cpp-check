@@ -4,9 +4,9 @@ set +x
 set -o errexit
 set -o nounset
 
-CPPCHECK=$(which cppcheck)
+CPPCHECK=/usr/local/bin/cppcheck
 ${CPPCHECK} --version
-CPPCHECK_OPTIONS="--enable=all --inconclusive --error-exitcode=1 --force"
+CPPCHECK_OPTIONS="--enable=all --inconclusive --error-exitcode=1 --check-level=exhaustive --force --checkers-report=cppcheck_report.txt"
 if [[ -d "src/include" ]]; then
     CPPCHECK_INCLUDES="${CPPCHECK_INCLUDES-} -I src/include/"
 fi
@@ -22,4 +22,6 @@ fi
 
 CPPCHECK_CMD="${CPPCHECK} ${CPPCHECK_OPTIONS} ${CPPCHECK_INCLUDES} ${CPPCHECK_SUPPRESS-} ${CPPCHECK_SOURCES}"
 ${CPPCHECK_CMD}
-exit $?
+rc=$?
+rm -f cppcheck_report.txt
+exit ${rc}

@@ -92,9 +92,28 @@ static void sorting(bm::State& state) {
     for (size_t i = 0; i < count; i++) {
         map[std::rand()] = std::rand();
     }
-
     for (auto _ : state) {
         auto keys = sort_keys<VectorT, decltype(map)>(map);
+        // bm::DoNotOptimize(keys.size());
+    }
+    state.SetComplexityN(count);
+    state.SetItemsProcessed(count * state.iterations());
+    state.SetBytesProcessed(count * state.iterations() * sizeof(int32_t) * 2);
+    BENCH_MEM_AFTER_TEST
+}
+
+template <typename VectorT, typename MapT>
+static void sort_keys(bm::State& state) {
+    BENCH_MEM_BEFORE_TEST
+    auto count = static_cast<size_t>(state.range(0));
+    std::srand(seed);
+    MapT map(count);
+    for (size_t i = 0; i < count; i++) {
+        map[std::rand()] = std::rand();
+    }
+    VectorT keys;
+    for (auto _ : state) {
+        sort_keys(keys, map);
         // bm::DoNotOptimize(keys.size());
     }
     state.SetComplexityN(count);
@@ -144,6 +163,7 @@ BENCHMARK(sorting<std_vec, std_map>)->Args({10});
 BENCHMARK(sorting<std_vec, std_map>)->Args({100});
 BENCHMARK(sorting<std_vec, std_map>)->Args({size_t(1e3)});
 BENCHMARK(sorting<std_vec, std_map>)->Args({size_t(1e6)});
+BENCHMARK(sort_keys<std_vec, std_map>)->Args({size_t(1e6)});
 BENCHMARK(search<std_map>)->Args({size_t(1e6)});
 
 // EASTL STL
@@ -151,6 +171,7 @@ BENCHMARK(sorting<eastl_vec, eastl_map>)->Args({10});
 BENCHMARK(sorting<eastl_vec, eastl_map>)->Args({100});
 BENCHMARK(sorting<eastl_vec, eastl_map>)->Args({size_t(1e3)});
 BENCHMARK(sorting<eastl_vec, eastl_map>)->Args({size_t(1e6)});
+BENCHMARK(sort_keys<eastl_vec, eastl_map>)->Args({size_t(1e6)});
 BENCHMARK(search<eastl_map>)->Args({size_t(1e6)});
 
 // BOOST STL
@@ -158,6 +179,7 @@ BENCHMARK(sorting<boost_vec, boost_map>)->Args({10});
 BENCHMARK(sorting<boost_vec, boost_map>)->Args({100});
 BENCHMARK(sorting<boost_vec, boost_map>)->Args({size_t(1e3)});
 BENCHMARK(sorting<boost_vec, boost_map>)->Args({size_t(1e6)});
+BENCHMARK(sort_keys<boost_vec, boost_map>)->Args({size_t(1e6)});
 BENCHMARK(search<boost_map>)->Args({size_t(1e6)});
 
 // SPARSEPP
@@ -165,6 +187,7 @@ BENCHMARK(sorting<std_vec, spp_map>)->Args({10});
 BENCHMARK(sorting<std_vec, spp_map>)->Args({100});
 BENCHMARK(sorting<std_vec, spp_map>)->Args({size_t(1e3)});
 BENCHMARK(sorting<std_vec, spp_map>)->Args({size_t(1e6)});
+BENCHMARK(sort_keys<std_vec, spp_map>)->Args({size_t(1e6)});
 BENCHMARK(search<spp_map>)->Args({size_t(1e6)});
 
 // ABSEIL
@@ -173,3 +196,4 @@ BENCHMARK(search<absl_node_map>)->Args({size_t(1e6)});
 
 // BEST
 BENCHMARK(sorting<eastl_vec, spp_map>)->Args({size_t(1e6)});
+BENCHMARK(sort_keys<eastl_vec, spp_map>)->Args({size_t(1e6)});

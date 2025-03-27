@@ -19,15 +19,20 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Install checkers
-      run: sudo apt-get update && sudo apt-get install -y valgrind clang-format
+      run: sudo apt-get update && sudo apt-get install -y valgrind clang-format-19 wget unzip
+
+    - name: Build cppcheck
+      working-directory: ${{github.workspace}}
+      run: sudo scripts/cpp-check-install
 
     # Disabled on github, cppcheck suppression work incorrect, on localhost or docker works correctly
-    #- name: Source pre-checks cppcheck
-    #  working-directory: ${{github.workspace}}
-    #  run: scripts/cpp-check
+    - name: Source pre-checks cppcheck
+      working-directory: ${{github.workspace}}
+      run: scripts/cpp-check
 
     # Another tool is disabled couse something wrong
     - name: Source pre-checks code style
+      working-directory: ${{github.workspace}}
       run: scripts/style-check
 
     - name: Configure conan 
@@ -41,7 +46,7 @@ jobs:
       run: conan install . -of ${{github.workspace}}/build -pr ${{env.CONAN_PROFILE}} --build missing
 
     - name: Configure CMake
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DCMAKE_CXX_CPPCHECK=/usr/local/bin/cppcheck
 
     - name: Build
       working-directory: ${{github.workspace}}

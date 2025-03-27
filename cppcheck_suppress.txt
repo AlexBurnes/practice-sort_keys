@@ -1,5 +1,6 @@
 missingInclude
 missingIncludeSystem
+checkersReport
 unusedFunction
 unmatchedSuppression
 unreadVariable:*src/test/bench.cpp

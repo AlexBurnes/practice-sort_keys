@@ -6,7 +6,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
 
 RUN apt-get update && \
     apt-get -y install \
-    git gcc-12 g++-12 clang-format make cmake ninja-build \
+    git gcc-12 g++-12 clang-format-19 make cmake ninja-build \
     autoconf automake libtool binutils \
     libstdc++-12-dev \
     libdigest-sha-perl libipc-run-perl \
@@ -14,7 +14,7 @@ RUN apt-get update && \
     cppcheck libev-dev libpcre3-dev \
     gettext flex \
     python3 python3-pip \
-    lcov
+    lcov wget unzip
 
 RUN pip3 install conan --break-system-packages && \
     mkdir build && \
@@ -29,19 +29,20 @@ RUN apt-get -y install \
 WORKDIR build
 COPY . . 
 
+RUN scripts/cpp-check-install
 RUN scripts/cpp-check
-#RUN scripts/style-check
+RUN scripts/style-check
 RUN conan install . -of .build -pr debug --build missing
-RUN cmake -H. -B.build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake
+RUN cmake -H. -B.build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DCMAKE_CXX_CPPCHECK=/usr/local/bin/cppcheck
 RUN cmake --build .build
 RUN cmake --install .build
 RUN ctest --test-dir .build -T Test -T Coverage -V
 RUN scripts/mem-check bin/test_sort_keys
 RUN bin/test_bench --benchmark_counters_tabular=true
 
-RUN lcov --directory .build --capture --output-file coverage.info && \
-    lcov --extract coverage.info 'src/*' -o coverage.info && \
-    genhtml --demangle-cpp -o coverage coverage.info
+RUN lcov --directory .build --capture --output-file coverage.info
+RUN lcov --extract coverage.info 'src/*' -o coverage.info
+RUN genhtml --demangle-cpp -o coverage coverage.info
 
 ################################################################################
 

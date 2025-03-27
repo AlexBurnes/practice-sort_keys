@@ -19,10 +19,7 @@ Aleksey.Ozhigov <burnes@svyazcom.ru>
 
 ## Change log
 
-- 0.1.0 initial version
-- 0.1.1 CI github actions
-- 0.1.2 library containers 
-- 0.1.3 memory benchmark
+[CHANGELOG](CHANGELOG.md)
 
 ## Build
 
@@ -36,7 +33,15 @@ Run docker container to see coverage
 
 Open in a browser [Coverage](http://localhost:8081)
 
+## Code style check
+
+For style check used clang-format-19. 
+Format described in style_format.txt, based on [Google C++ Style Guide](https://google.github.io/styleguide/cppguide.html)
+
+    clang-format-19 --style="file:style_format.txt" source
+
 
 ## TODO
 
-* [%] CI cppcheck trouble
+* [*] CI cppcheck trouble
+* [ ] Benchmark memory class instead of defines

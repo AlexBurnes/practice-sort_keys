@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-
+set +x
 set -o nounset
 
 STYLE_FILE="file:style_format.txt"
@@ -10,15 +10,20 @@ if [[ ${#dirs[@]} -eq 0 ]]; then
     dirs=(src)
 fi
 
-clang-format --version
+CLANG_FORMAT=$(which clang-format-19)
+if [[ -z "${CLANG_FORMAT}" ]]; then
+    echo -e "clang-format version 19 is not installed"
+    exit 1
+fi
+${CLANG_FORMAT} --version
 
 function clang_format() {
     #echo "verifying 'clang-format --output-replacements-xml --style=\"${STYLE_FILE}\" $@'"
-    if clang-format --output-replacements-xml --style="${STYLE_FILE}" "$@" | grep -q '<replacement '; then
+    if ${CLANG_FORMAT} --output-replacements-xml --style="${STYLE_FILE}" "$@" | grep -q '<replacement '; then
         echo -e "$@ not in code style format"
         echo -e "To fix formatting run:"
-        echo -e "    clang-format -i --style=\"${STYLE_FILE}\" $@"
-        clang-format --output-replacements-xml --style="${STYLE_FILE}" "$@"
+        echo -e "    ${CLANG_FORMAT} -i --style=\"${STYLE_FILE}\" $@"
+        #${CLANG_FORMAT} --output-replacements-xml --style="${STYLE_FILE}" "$@"
         return 1
     fi
     echo -e "$@ code style ok"
@@ -27,7 +32,7 @@ function clang_format() {
 
 function clang_fix() {
     echo -e "fix 'clang-format -i --style=\"${STYLE_FILE}\" $@'"
-    clang-format -i --style="${STYLE_FILE}" "$@"
+    ${CLANG_FORMAT} -i --style="${STYLE_FILE}" "$@"
 }
 
 tmpfile="tmpfile.$RANDOM"
