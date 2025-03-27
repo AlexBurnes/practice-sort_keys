@@ -54,15 +54,15 @@ jobs:
 
     - name: Test
       working-directory: ${{github.workspace}}/build
-      run: ctest -C ${{env.BUILD_TYPE}} -T Test
+      run: ctest -C ${{env.BUILD_TYPE}} -T Test -V
 
     - name: Test coverage
       working-directory: ${{github.workspace}}/build
       run: |
-        ctest -C ${{env.BUILD_TYPE}} -T Coverage
-        lcov --directory build --capture --output-file coverage.info
-        lcov --extract coverage.info '*src/*' -o coverage.info
-        lcov -l coverage.info
+        ctest -C ${{env.BUILD_TYPE}} -T Test -T Coverage
+        #lcov --directory build --capture --output-file coverage.info
+        #lcov --extract coverage.info '*src/*' -o coverage.info
+        #lcov -l coverage.info
 
     - name: Test benchmark
       working-directory: ${{github.workspace}}
