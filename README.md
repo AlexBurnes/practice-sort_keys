@@ -15,7 +15,7 @@ Aleksey.Ozhigov <burnes@svyazcom.ru>
 
 ## Version
 
-0.1.3
+0.1.4
 
 ## Change log
 
@@ -43,5 +43,4 @@ Format described in style_format.txt, based on [Google C++ Style Guide](https://
 
 ## TODO
 
-* [*] CI cppcheck trouble
 * [ ] Benchmark memory class instead of defines
