@@ -58,7 +58,11 @@ jobs:
 
     - name: Test coverage
       working-directory: ${{github.workspace}}/build
-      run: ctest -C ${{env.BUILD_TYPE}} -T Coverage
+      run: |
+        ctest -C ${{env.BUILD_TYPE}} -T Coverage
+        lcov --directory build --capture --output-file coverage.info
+        lcov --extract coverage.info '*src/*' -o coverage.info
+        lcov -l coverage.info
 
     - name: Test benchmark
       working-directory: ${{github.workspace}}
