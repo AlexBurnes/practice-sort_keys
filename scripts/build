@@ -2,7 +2,7 @@
 set -o errexit
 set -o nounset
 conan install . -of .build -pr debug --build missing
-cmake -H. -B.build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DCMAKE_CXX_CPPCHECK=/usr/local/bin/cppcheck
+cmake -H. -B.build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DCMAKE_CXX_CPPCHECK=/usr/local/bin/cppcheck -DCMAKE_INSTALL_PREFIX=./
 cmake --build .build
 cmake --install .build
 ctest --test-dir .build -T Test -V

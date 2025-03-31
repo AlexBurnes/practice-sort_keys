@@ -33,6 +33,8 @@ Memory benchmark
 
 ## Example of changelog record
 
+See documetation [https://common-changelog.org/](common changelog)
+
 ## [vX.Y.Z] - YYYY-MM-DD
 Short description, optionaly
 
