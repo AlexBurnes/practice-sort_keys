@@ -1,8 +1,0 @@
-#!/usr/bin/env bash
-
-set -o errexit
-set -o nounset
-
-VALGRIND=$(which valgrind)
-${VALGRIND} --tool=memcheck --leak-check=full --track-origins=yes $@
-exit $?

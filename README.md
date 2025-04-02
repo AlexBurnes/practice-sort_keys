@@ -23,6 +23,8 @@ Aleksey.Ozhigov <burnes@svyazcom.ru>
 
 ## Build
 
+    git submodule init
+    git submodule update
     docker build --tag practice_sort_keys:latest --network host --progress=plain .
 
 ## Test coverage
