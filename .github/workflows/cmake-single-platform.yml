@@ -21,20 +21,20 @@ jobs:
     - name: Update submodules
       run: git submodule init && git submodule update
 
-    #- name: Install checkers
-    #  run: sudo apt-get update && sudo apt-get install -y valgrind clang-format-19 wget unzip lcov
+    - name: Install checkers
+      run: sudo apt-get update && sudo apt-get install -y valgrind clang-format-19 wget unzip lcov
 
-    #- name: Build cppcheck
-    #  working-directory: ${{github.workspace}}
-    #  run: sudo scripts/cpp-check install
+    - name: Build cppcheck
+      working-directory: ${{github.workspace}}
+      run: sudo scripts/cpp-check install
 
-    #- name: Source pre-checks cppcheck
-    #  working-directory: ${{github.workspace}}
-    #  run: scripts/cpp-check
+    - name: Source pre-checks cppcheck
+      working-directory: ${{github.workspace}}
+      run: scripts/cpp-check
 
-    #- name: Source pre-checks code style
-    #  working-directory: ${{github.workspace}}
-    #  run: scripts/style-check
+    - name: Source pre-checks code style
+      working-directory: ${{github.workspace}}
+      run: scripts/style-check
 
     - name: Configure conan 
       run: |
@@ -45,29 +45,25 @@ jobs:
 
     - name: Build third libraries
       working-directory: ${{github.workspace}}
-      run: conan install . -of build -pr ${{env.CONAN_PROFILE}} --build missing
+      run: conan install . -of .build -pr ${{env.CONAN_PROFILE}} --build missing
 
     - name: Configure CMake
       working-directory: ${{github.workspace}}
-      run: cmake -B build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake
+      run: cmake -B .build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake
 
     - name: Build
       working-directory: ${{github.workspace}}
-      run: cmake --build build --config ${{env.BUILD_TYPE}}
+      run: cmake --build .build --config ${{env.BUILD_TYPE}}
 
     - name: Test
       working-directory: ${{github.workspace}}/build
       run: ctest -C ${{env.BUILD_TYPE}} -T Test -V
 
-    #- name: Test coverage
-    #  working-directory: ${{github.workspace}}/build
-    #  run: ctest -C ${{env.BUILD_TYPE}} -T Test
+    - name: Test benchmark
+      working-directory: ${{github.workspace}}
+      run: .build/src/test/test_bench --benchmark_counters_tabular=true
 
-    #- name: Test benchmark
-    #  working-directory: ${{github.workspace}}
-    #  run: build/src/test/test_bench --benchmark_counters_tabular=true
-
-    #- name: Source post-checks memory leaks
-    #  working-directory: ${{github.workspace}}
-    #  run: scripts/mem-check build/src/test/test_sort_keys
+    - name: Source post-checks memory leaks
+      working-directory: ${{github.workspace}}
+      run: scripts/mem-check /build/src/test/test_sort_keys
 
