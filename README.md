@@ -1,21 +1,16 @@
-## Abstract
+# Student practice C++ sort keys of unordered map on different containers libraries
 
 Sort keys of unordered map
 
-Templated library algorithm for different STL containers tests as an example 
-of C++ metaprograming for students practice.
-
-## Copyright
-
-LCC Svyazcom 2025
+Templated library algorithm for different STL containers tests as an example of C++ metaprograming for students practice.
 
 ## Author
 
-Aleksey.Ozhigov <burnes@svyazcom.ru>
+Aleksey.Ozhigov <AlexBurnes@gmail.com>
 
 ## Version
 
-0.1.4
+0.1.5
 
 ## Change log
 
@@ -42,6 +37,9 @@ Format described in style_format.txt, based on [Google C++ Style Guide](https://
 
     clang-format-19 --style="file:style_format.txt" source
 
+# License
+
+This work is distributed under the [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0), see [LICENSE](https://github.com:AlexBurnes/practice-sort_keys/blob/master/LICENSE) for more information.
 
 ## TODO
 

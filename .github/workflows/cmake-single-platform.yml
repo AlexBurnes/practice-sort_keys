@@ -23,7 +23,7 @@ jobs:
 
     - name: Build cppcheck
       working-directory: ${{github.workspace}}
-      run: sudo scripts/cpp-check-install
+      run: sudo scripts/cpp-check install
 
     # Disabled on github, cppcheck suppression work incorrect, on localhost or docker works correctly
     - name: Source pre-checks cppcheck

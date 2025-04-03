@@ -1,4 +1,4 @@
-## Change log
+# Change log
 
 ## [v0.1.0] - 2025-03-25
 
@@ -31,7 +31,12 @@ Memory benchmark
 - cpp-check use cppcheck 2.16.0
 - docker-build generate coverage report
 
-## Example of changelog record
+## [v0.1.5] - 2025-04-03
+
+### Added
+- licence
+
+# Example of changelog record
 
 See documetation [https://common-changelog.org/](common changelog)
 

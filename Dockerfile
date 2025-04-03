@@ -1,5 +1,19 @@
-FROM debian:12.7 as builder
+# Student practice C++ sort keys of unordered map on different containers libraries
+# Copyright 2025 AlexBurnes@gmail.com
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
+FROM debian:12.7 as builder
 
 ENV DEBIAN_FRONTEND=noninteractive \
     CONAN_PATH=.conan2 
@@ -29,8 +43,8 @@ RUN apt-get -y install \
 WORKDIR build
 COPY . . 
 
-RUN scripts/cpp-check-install
-RUN scripts/cpp-check
+RUN scripts/cpp-check install
+RUN scripts/cpp-check 
 RUN scripts/style-check
 RUN conan install . -of .build -pr debug --build missing
 RUN cmake -H. -B.build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DCMAKE_CXX_CPPCHECK=/usr/local/bin/cppcheck
@@ -48,8 +62,7 @@ RUN genhtml --demangle-cpp -o coverage coverage.info
 
 FROM debian:12.7-slim as runtime
 
-LABEL org.opencontainers.image.vendor="LCC Svyazcom"
-LABEL org.opencontainers.image.author="Aleksey.Ozhigov<burnes@svyazcom.ru>"
+LABEL org.opencontainers.image.author="Aleksey.Ozhigov<AlexBurnes@gmail.com>"
 LABEL org.opencontainers.image.source="github.com:AlexBurnes/practice_sort_keys.git"
 
 RUN apt-get update && \
