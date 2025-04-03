@@ -46,7 +46,9 @@ jobs:
         cp ~/.conan2/profiles/default ~/.conan2/profiles/debug && sed -i -e 's/Release/Debug/g' ~/.conan2/profiles/debug
 
     - name: Build third libraries
-      run: conan install . -of ${{github.workspace}}/build -pr ${{env.CONAN_PROFILE}} --build missing
+      run: |
+        mkdir -p ${{github.workspace}}/build
+        conan install . -of ${{github.workspace}}/build -pr ${{env.CONAN_PROFILE}} --build missing
 
     - name: Configure CMake
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DCMAKE_CXX_CPPCHECK=/usr/local/bin/cppcheck
