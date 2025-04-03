@@ -65,5 +65,5 @@ jobs:
 
     - name: Source post-checks memory leaks
       working-directory: ${{github.workspace}}
-      run: scripts/mem-check /build/src/test/test_sort_keys
+      run: scripts/mem-check .build/src/test/test_sort_keys
 
