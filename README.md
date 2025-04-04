@@ -34,7 +34,7 @@ Then open your browser at [Coverage](http://localhost:8081)
 ## Code Style Check
 
 For checking code style formatting the clang-format-19 utility is used.
-Thhe format is defined in style_format.txt, which is based on [Google C++ Style Guide](https://google.github.io/styleguide/cppguide.html)
+The format is defined in style_format.txt, which is based on [Google C++ Style Guide](https://google.github.io/styleguide/cppguide.html)
 
     clang-format-19 --style="file:style_format.txt" source
 
