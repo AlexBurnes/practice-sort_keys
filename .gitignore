@@ -3,6 +3,7 @@ CMakeUserPresets.json
 *.json
 .build
 bin
+3thd
 docs
 Doxyfile
 *.geany

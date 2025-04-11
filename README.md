@@ -11,7 +11,7 @@ Aleksey.Ozhigov <AlexBurnes@gmail.com>
 
 ## Version
 
-0.1.5
+0.1.6
 
 ## Change log
 

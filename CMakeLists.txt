@@ -22,6 +22,8 @@ include(cmake/modules.cmake)
 
 include(pedantic)
 
+include(sparsepp.cmake)
+
 find_package(fmt REQUIRED)
 find_package(range-v3)
 find_package(GTest)

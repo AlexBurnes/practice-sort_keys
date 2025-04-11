@@ -5,4 +5,4 @@ unusedFunction
 unmatchedSuppression
 unreadVariable:*src/test/bench.cpp
 unusedAllocatedMemory:*src/test/bench.cpp
-*:src/include/sparsepp/*
+*:3thd/*

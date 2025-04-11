@@ -36,6 +36,12 @@ Memory benchmark
 ### Added
 - licence
 
+## [v0.1.6] - 2025-04-11
+
+### Added
+- sparsepp.cmake, remove sparsepp headers, download as 3thd library
+
+
 # Example of changelog record
 
 See documetation [https://common-changelog.org/](common changelog)
