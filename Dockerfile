@@ -20,9 +20,10 @@ ENV DEBIAN_FRONTEND=noninteractive \
 
 RUN apt-get update && \
     apt-get -y install \
-    git gcc-12 g++-12 clang-format-19 make cmake ninja-build \
+    git make cmake ninja-build \
+    gcc-12 g++-12 libstdc++-12-dev \
+    clang-19 clang-tools-19 clang-format-19 \
     autoconf automake libtool binutils \
-    libstdc++-12-dev \
     libdigest-sha-perl libipc-run-perl \
     google-perftools glibc-source libgoogle-perftools-dev \
     cppcheck libev-dev libpcre3-dev \
@@ -35,7 +36,7 @@ RUN pip3 install conan --break-system-packages && \
     cd build && \
     conan profile detect --force 
 
-RUN cp ~/.conan2/profiles/default ~/.conan2/profiles/debug && sed -i -e 's/Release/Debug/g' ~/.conan2/profiles/debug
+#RUN cp ~/.conan2/profiles/default ~/.conan2/profiles/debug && sed -i -e 's/Release/Debug/g' ~/.conan2/profiles/debug
 
 RUN apt-get -y install \
     valgrind
@@ -43,13 +44,12 @@ RUN apt-get -y install \
 WORKDIR build
 COPY . . 
 
+RUN bash update-alternatives-clang.sh 19 19
+
 RUN scripts/cpp-check install
 RUN scripts/cpp-check 
 RUN scripts/style-check
-RUN conan install . -of .build -pr debug --build missing
-RUN cmake -H. -B.build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DCMAKE_INSTALL_PREFIX=./
-RUN cmake --build .build
-RUN cmake --install .build
+RUN scripts/build
 RUN ctest --test-dir .build -T Test -T Coverage -V
 RUN scripts/mem-check bin/test_sort_keys
 RUN bin/test_bench --benchmark_counters_tabular=true

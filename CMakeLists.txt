@@ -19,8 +19,8 @@ project(sort_keys CXX)
 include(CTest)
 
 include(cmake/modules.cmake)
-
 include(pedantic)
+define_parallel_degree(4)
 
 include(sparsepp.cmake)
 

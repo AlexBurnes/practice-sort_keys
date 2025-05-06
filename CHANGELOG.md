@@ -41,6 +41,13 @@ Memory benchmark
 ### Added
 - sparsepp.cmake, remove sparsepp headers, download as 3thd library
 
+## [v0.1.7] - 2025-05-06
+
+### Added
+- .project files, setup environment for build script, define compiler
+
+### Changed
+- build script changed to scripts/build script
 
 # Example of changelog record
 

@@ -11,7 +11,8 @@ Aleksey.Ozhigov <AlexBurnes@gmail.com>
 
 ## Version
 
-0.1.6
+0.1.7
+
 
 ## Change log
 
@@ -21,6 +22,10 @@ For detail history changes, see [CHANGELOG](CHANGELOG.md)
 
     git submodule init
     git submodule update
+    scripts/build
+
+## Build in docker
+
     docker build --tag practice_sort_keys:latest --network host --progress=plain .
 
 ## Test Coverage
