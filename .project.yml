@@ -63,7 +63,7 @@ stages:
 actions:
 
   - name: cmake-test
-    run: cmake --test --test-dir .build -v
+    run: ctest --test-dir .build -T Test -V
 
   # Dependency installation actions
   - name: conan-install
