@@ -2,8 +2,7 @@
 
 **Sort keys of unordered map**
 
-A templated library algorithm for testing different STL containers tests as an example of C++ metaprograming for
-student practice.
+A templated library algorithm for testing different STL containers tests as an example of C++ metaprograming for student practice.
 
 ## Author
 
@@ -11,7 +10,7 @@ Aleksey.Ozhigov <AlexBurnes@gmail.com>
 
 ## Version
 
-0.1.6
+0.2.0
 
 ## Change log
 
@@ -19,15 +18,20 @@ For detail history changes, see [CHANGELOG](CHANGELOG.md)
 
 ## Build
 
-    git submodule init
-    git submodule update
-    docker build --tag practice_sort_keys:latest --network host --progress=plain .
+```sh
+git submodule init
+git submodule update
+```
+
+docker build --tag practice_sort_keys:latest --network host --progress=plain .
 
 ## Test Coverage
 
 To view test coverage, run a Docker container:
 
-    docker run -d --rm --name practice_sort_keys --publish 8081:80 practice_sort_keys
+```sh
+docker run -d --rm --name practice_sort_keys --publish 8081:80 practice_sort_keys
+```
 
 Then open your browser at [Coverage](http://localhost:8081)
 
@@ -36,7 +40,9 @@ Then open your browser at [Coverage](http://localhost:8081)
 For checking code style formatting the clang-format-19 utility is used.
 The format is defined in style_format.txt, which is based on [Google C++ Style Guide](https://google.github.io/styleguide/cppguide.html)
 
-    clang-format-19 --style="file:style_format.txt" source
+```sh
+clang-format-19 --style="file:style_format.txt" source
+```
 
 # License
 

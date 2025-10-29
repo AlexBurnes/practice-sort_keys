@@ -1,7 +1,7 @@
 ---
 project:
   name: "SortKeys"
-  modules: ['test_sort_keys']
+  modules: ['test_sort_keys', 'test_bench']
   bin: "bin"
 
 include:
@@ -15,12 +15,12 @@ stages:
     steps:
       - action: version-check
       - action: version-greatest
-      - action: cmake-test
+      - action: run-test
       - action: git-untracked
       - action: git-uncommitted
       - action: git-modified
 
-  docker-build:
+  images-build:
     steps:
       - action: container-build
         matrix:
@@ -47,14 +47,24 @@ stages:
         require: [cmake-config]
       - action: cmake-install
         require: [cmake-build]
-      - action: cmake-test
+      - action: run-test
         require: [cmake-build]
+      - action: coverage-test
+        require: [run-test]
+      - action: benchmark
+        require: [coverage-test]
 
   make:
     steps:
       - action: cmake-build
-      - action: cmake-test
+      - action: run-test
         require: [cmake-build]
+
+  test:
+    steps:
+      - action: run-test
+      - action: coverage-test
+      - action: benchmark
 
   install:
     steps:
@@ -62,8 +72,14 @@ stages:
 
 actions:
 
-  - name: cmake-test
+  - name: run-test
     run: ctest --test-dir .build -T Test -V
+
+  - name: coverage-test
+    run: ctest --test-dir .build -T Coverage
+
+  - name: benchmark
+    run: bin/test_bench --benchmark_counters_tabular=true
 
   # Dependency installation actions
   - name: conan-install
@@ -126,3 +142,26 @@ actions:
       network: host
       env_file: .docker-env
       run_stage: build
+
+  - name: docker-build
+    run: |
+      sudo docker build --tag practice_sort_keys:latest --network host --progress=plain .
+
+  - name: docker-start
+    run: |
+      sudo docker run -d --rm --name practice_sort_keys --publish 8081:80 practice_sort_key
+
+  - name: docker-stop
+    run: |
+      sudo docker stop practice_sort_keys
+
+  - name: mem-check
+    run: |
+      valgrind --tool=memcheck --leak-check=full --track-origins=yes bin/test_sort_keys
+
+  - name: cpp-check
+    run: |
+      /usr/local/bin/cppcheck --enable=all --inconclusive --error-exitcode=1 --check-level=exhaustive \
+        --force --checkers-report=cppcheck_report.txt"
+      CPPCHECK_INCLUDE_FILE_DEFAULT=".cppcheck.include"
+      CPPCHECK_SUPPRESS_FILE_DEFAULT=".cppcheck.suppress"

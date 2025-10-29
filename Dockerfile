@@ -40,19 +40,17 @@ RUN cp ~/.conan2/profiles/default ~/.conan2/profiles/debug && sed -i -e 's/Relea
 RUN apt-get -y install \
     valgrind
 
+RUN wget -O - "https://github.com/AlexBurnes/buildfab/releases/latest/download/buildfab-linux-amd64-install.sh" | sh
+
 WORKDIR build
 COPY . . 
 
-RUN scripts/cpp-check install
-RUN scripts/cpp-check 
-RUN scripts/style-check
-RUN conan install . -of .build -pr debug --build missing
-RUN cmake -H. -B.build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DCMAKE_INSTALL_PREFIX=./
-RUN cmake --build .build
-RUN cmake --install .build
-RUN ctest --test-dir .build -T Test -T Coverage -V
-RUN scripts/mem-check bin/test_sort_keys
-RUN bin/test_bench --benchmark_counters_tabular=true
+RUN buildfab pre-install
+RUN buildfab cppcheck-install
+RUN buildfab cpp-check 
+RUN buildfab style-check
+RUN buildfab build
+RUN buildfab mem-check 
 
 RUN lcov --directory .build --capture --output-file coverage.info
 RUN lcov --extract coverage.info '*src/*' -o coverage.info

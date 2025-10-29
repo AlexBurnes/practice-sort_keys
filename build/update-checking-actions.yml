@@ -317,3 +317,33 @@ actions:
       else
         echo -e "⚠️ for validate project yml require install yamllint utility"
       fi
+
+  - name: cppcheck-install
+    run: |
+      if [ ! -f cppcheck-2.16.0.zip ]; then
+        echo "downloading cppcheck-2.16.0.zip"
+        wget -O "cppcheck-2.16.0.zip" https://github.com/danmar/cppcheck/archive/2.16.0.zip
+      fi
+      if [ -d "cppcheck-2.16.0" ]; then
+        rm -fr "cppcheck-2.16.0"
+      fi
+      echo "unpack cppcheck-2.16.0.zip"
+      unzip -qq cppcheck-2.16.0.zip
+      cd cppcheck-2.16.0
+      echo "build cppcheck"
+      cmake -H. -Bbuild -DCMAKE_INSTALL_PREFIX=/usr/local
+      cmake --build build
+      cmake --install build
+      if [ ! -e "/usr/local/bin/cppcheck" ]; then
+        echo "fail install cppcheck 2.16.0"
+        exit 1
+      fi
+      installed_version=$(/usr/local/bin/cppcheck --version)
+      if [ -z "${installed_version}" || ${installed_version} =~ "/^2.16.0/" ]; then
+        echo "fail install cppcheck 2.16.0, /usr/local/bin/cppcheck --version returns another version ${installed_version}"
+        exit 1
+      fi
+      rm -fr cppcheck-2.16.0
+      rm -f cppcheck-2.16.0.zip
+      echo "cppcheck 2.16.0 installed into /usr/local/bin"
+      exit 0
