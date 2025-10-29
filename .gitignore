@@ -1,10 +1,22 @@
-CMakeUserPresets.json
+# temporary catalogs
 *.csv
 *.json
 .build
-bin
-3thd
-docs
+.3thd
+.cache
+
+# build and run artefacts 
+CMakeUserPresets.json
 Doxyfile
-*.geany
+bin
+docs
 var
+build/pre-push
+build/buildfab
+build/version
+
+# IDE
+*.geany
+
+# secrects
+.env

@@ -1,0 +1,128 @@
+---
+project:
+  name: "SortKeys"
+  modules: ['test_sort_keys']
+  bin: "bin"
+
+include:
+  - "build/update-checking-stages.yml"
+  - "build/update-checking-actions.yml"
+
+stages:
+
+  # validate project on git push
+  pre-push:
+    steps:
+      - action: version-check
+      - action: version-greatest
+      - action: cmake-test
+      - action: git-untracked
+      - action: git-uncommitted
+      - action: git-modified
+
+  docker-build:
+    steps:
+      - action: container-build
+        matrix:
+          values:
+            image:
+              - "centos:7"
+              - "centos:8"
+              - "debian:12.7"
+          strategy:
+            max_parallel: 2     # <- run at most N matrix jobs at once (default: all)
+            fail_fast: true     # <- stop scheduling new jobs when any job fails (default: false)
+            continue_on_error: false  # <- if true, stage succeeds even if some jobs fail
+            # (optional) ordering policy; if omitted, natural order is used
+            order: "fifo"       # "fifo" | "random"
+
+  build:
+    steps:
+      - action: pre-check
+      - action: conan-install
+        require: [pre-check]
+      - action: cmake-config
+        require: [conan-install]
+      - action: cmake-build
+        require: [cmake-config]
+      - action: cmake-install
+        require: [cmake-build]
+      - action: cmake-test
+        require: [cmake-build]
+
+  make:
+    steps:
+      - action: cmake-build
+      - action: cmake-test
+        require: [cmake-build]
+
+  install:
+    steps:
+      - action: cmake-install
+
+actions:
+
+  - name: cmake-test
+    run: cmake --test --test-dir .build -v
+
+  # Dependency installation actions
+  - name: conan-install
+    run: |
+      # Check for golang package in Conan
+      if ! conan search golang --remote=all 2>/dev/null | grep -q "golang/"; then
+        echo "Creating golang package locally..."
+        conan create conanfile-golang.py --build=missing
+      fi
+      conan install . --build=missing --profile=default
+
+  # Build actions
+  - name: cmake-config
+    run: |
+      # Configure CMake with Conan preset
+      mkdir -p .build
+      # Try to use Conan preset first (CMake 3.23+)
+      if cmake --version | grep -q "3\.2[3-9]\|3\.[3-9]\|[4-9]\." && [ -f "./CMakeUserPresets.json" ]; then
+        echo "Using Conan CMake preset"
+        cmake --preset conan-release
+      else
+        echo "Using manual CMake configuration"
+        cmake -B .build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="/usr/local" -G "Unix Makefiles"
+      fi
+
+  - name: cmake-build
+    run: |
+      # Build for current platform
+      if cmake --version | grep -q "3\.2[3-9]\|3\.[3-9]\|[4-9]\." && [ -f "./CMakeUserPresets.json" ]; then
+        echo "Building with CMake preset"
+        cmake --build --preset conan-release --target buildfab
+      else
+        echo "Building with manual configuration"
+        cmake --build .build --target buildfab
+      fi
+
+  - name: cmake-install
+    run: |
+      # Install binary to project bin directory using CMake
+      if cmake --version | grep -q "3\.2[3-9]\|3\.[3-9]\|[4-9]\." && [ -f "./CMakeUserPresets.json" ]; then
+        echo "Installing with CMake preset"
+        cmake --build --preset conan-release --target install
+      else
+        echo "Installing with manual configuration"
+        cmake --build .build --target install
+      fi
+
+  - name: container-build
+    container:
+      engine: docker
+      image:
+        from: ${{ matrix.image }}
+      workdir: /src
+      cache:
+        conan: ./.cache
+      env:
+        BRANCH: ${{version.branch}}
+      cpu: 2
+      memory: 4G
+      network: host
+      env_file: .docker-env
+      run_stage: build
