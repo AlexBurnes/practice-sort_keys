@@ -34,11 +34,12 @@ Then open [http://localhost:8081](http://localhost:8081)
 * License: [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 * Version: **0.2.0**
 
-For full build, test, and CI setup details, see the sections below.
-
 ## 🕓 Change Log
 
 For detailed change history, see [CHANGELOG](CHANGELOG.md).
+
+---
+For full build, test, and CI setup details, see the sections below.
 
 ## 🏗️ Build
 

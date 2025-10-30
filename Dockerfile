@@ -16,13 +16,14 @@
 FROM debian:12.7 as builder
 
 ENV DEBIAN_FRONTEND=noninteractive \
-    CONAN_PATH=.conan2 
+    CONAN_PATH=.conan2
 
 RUN apt-get update && \
     apt-get -y install \
-    git gcc-12 g++-12 clang-format-19 make cmake ninja-build \
+    git make cmake ninja-build \
+    gcc-12 g++-12 libstdc++-12-dev \
+    clang-19 clang-tools-19 clang-format-19 \
     autoconf automake libtool binutils \
-    libstdc++-12-dev \
     libdigest-sha-perl libipc-run-perl \
     google-perftools glibc-source libgoogle-perftools-dev \
     cppcheck libev-dev libpcre3-dev \
@@ -33,9 +34,9 @@ RUN apt-get update && \
 RUN pip3 install conan --break-system-packages && \
     mkdir build && \
     cd build && \
-    conan profile detect --force 
+    conan profile detect --force
 
-RUN cp ~/.conan2/profiles/default ~/.conan2/profiles/debug && sed -i -e 's/Release/Debug/g' ~/.conan2/profiles/debug
+#RUN cp ~/.conan2/profiles/default ~/.conan2/profiles/debug && sed -i -e 's/Release/Debug/g' ~/.conan2/profiles/debug
 
 RUN apt-get -y install \
     valgrind
@@ -43,14 +44,16 @@ RUN apt-get -y install \
 RUN wget -O - "https://github.com/AlexBurnes/buildfab/releases/latest/download/buildfab-linux-amd64-install.sh" | sh
 
 WORKDIR build
-COPY . . 
+COPY . .
 
 RUN buildfab pre-install
 RUN buildfab cppcheck-install
-RUN buildfab cpp-check 
+RUN buildfab cpp-check
 RUN buildfab style-check
 RUN buildfab build
-RUN buildfab mem-check 
+RUN buildfab mem-check
+
+RUN bash update-alternatives-clang.sh 19 19
 
 RUN lcov --directory .build --capture --output-file coverage.info
 RUN lcov --extract coverage.info '*src/*' -o coverage.info

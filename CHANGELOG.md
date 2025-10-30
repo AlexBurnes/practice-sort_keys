@@ -1,4 +1,3 @@
----
 # How to add entry for changelog
 
 See documetation [https://common-changelog.org/](common changelog)
@@ -30,10 +29,16 @@ Short description, optionaly
 - buildfab .project.yml configuration
 
 ### Remove
-- scripts catalog and bash scripts, all actions defined in buildfab 
+- scripts catalog and bash scripts, all actions defined in buildfab
   project congfiguration
 
+## [v0.1.7] - 2025-05-06
 
+### Added
+- .project files, setup environment for build script, define compiler
+
+### Changed
+- build script changed to scripts/build script
 
 ## [v0.1.6] - 2025-04-11
 
@@ -56,18 +61,18 @@ Short description, optionaly
 - github ci uncomment cpp-check and style-check
 
 ### Fixed
-- cppcheck and style check require one version of tools for all platforms 
+- cppcheck and style check require one version of tools for all platforms
 - style-check use clang-format-19
 - cpp-check use cppcheck 2.16.0
 - docker-build generate coverage report
 
-## [v0.1.3] - 2025-03-26 
+## [v0.1.3] - 2025-03-26
 
 Memory benchmark
 
 ## [v0.1.2] - 2025-03-26
 
-Library containers 
+Library containers
 
 ## [v0.1.1] - 2025-03-26
 
