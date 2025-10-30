@@ -4,6 +4,8 @@
 .build
 .3thd
 .cache
+PVS-Studio.log
+pvs-report/
 
 # build and run artefacts 
 CMakeUserPresets.json
