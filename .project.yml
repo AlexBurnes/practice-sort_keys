@@ -158,11 +158,13 @@ actions:
     run: |
       # Source directory to check:
       dirs=(src)
+      # cppcheck report
+      report="/tmp/cppcheck$RANDOM.txt"
       # cppcheck command and arguments
       cppcheck="/usr/local/bin/cppcheck --enable=all --inconclusive --error-exitcode=1 --check-level=exhaustive \
         -I src/include --include=.cppcheck.include \
         --suppressions-list=.cppcheck.suppress \
-        --force --checkers-report=/tmp/cppcheck_report.txt"
+        --force --checkers-report=${report}"
       # do cppcheck
       . build/colors.sh
       source_dirs=$(find ${dirs[@]} -type d)
@@ -175,10 +177,10 @@ actions:
       done
       if [[ ${rc} -gt 0 ]]; then
         echo -e "❌ ${red}cppcheck found errors, fix the code${clre}"
-        echo -e "review cppcheck report ${bold}/tmp/cppcheck_report.txt${clre}"
+        echo -e "review cppcheck report ${bold}${report}${clre}"
         exit 1
       fi
-      rm -f /tmp/cppcheck_report.txt
+      #rm -f ${report}
       echo -e "✅cppcheck ${green}ok${clre}"
 
   - name: style-check
