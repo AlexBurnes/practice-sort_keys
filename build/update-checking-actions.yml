@@ -19,7 +19,7 @@ actions:
 
   - name: pre-check
     run: buildfab run pre-check
- 
+
   # Tool check actions
   - name: check-conan
     run: |
@@ -32,9 +32,36 @@ actions:
   - name: check-cmake
     run: |
       if ! which cmake >/dev/null 2>&1; then
-        echo "CMake not found in PATH, will use Conan's CMake"
+        echo "CMake not found, will use Conan's CMake"
       else
         cmake --version
+      fi
+
+  - name: check-clang-format
+    run: |
+      if ! which clang-format >/dev/null 2>&1; then
+        echo "clang-format not found"
+        exit 1
+      else
+        clang-format --version
+      fi
+
+  - name: check-cppcheck
+    run: |
+      if ! which cppcheck >/dev/null 2>&1; then
+        echo "cppcheck not found"
+        exit 1
+      else
+        cppcheck --version
+      fi
+
+  - name: check-valgrind
+    run: |
+      if ! which valgrind >/dev/null 2>&1; then
+        echo "valgrind not found"
+        exit 1
+      else
+        valgrind --version
       fi
 
   - name: check-version-utility
@@ -148,7 +175,7 @@ actions:
             echo "✅ pre-push utility is up to date: $PREPUSH_VERSION"
           else
             # Check if pre-push version is older than latest
-            OLDER_VERSION=$(echo -e "$PREPUSH_VERSION\n$PREPUSH_CLEAN" | sort -V | head -1)
+            OLDER_VERSION=$(echo "$PREPUSH_VERSION\n$PREPUSH_CLEAN" | sort -V | head -1)
             if [ "$OLDER_VERSION" = "$PREPUSH_VERSION" ]; then
               echo "⚠️ New pre-push utility available: $LATEST_RELEASE (current: $PREPUSH_VERSION)"
               echo "To update pre-push utility:"
@@ -189,7 +216,7 @@ actions:
             echo "✅ version utility is up to date: $VERSION_UTIL_VERSION"
           else
             # Check if version utility is older than latest
-            OLDER_VERSION=$(echo -e "$VERSION_UTIL_VERSION\n$VERSION_GO_CLEAN" | sort -V | head -1)
+            OLDER_VERSION=$(echo "$VERSION_UTIL_VERSION\n$VERSION_GO_CLEAN" | sort -V | head -1)
             if [ "$OLDER_VERSION" = "$VERSION_UTIL_VERSION" ]; then
               echo "⚠️ New version utility available: $VERSION_GO_LATEST (current: $VERSION_UTIL_VERSION)"
               echo "To update version utility:"
@@ -304,46 +331,50 @@ actions:
 
   - name: repo-size
     run: |
-      curl -s https://api.github.com/repos/AlexBurnes/pre-push | jq '.size * 1024' | numfmt --to=iec --suffix=B
+      curl -s https://api.github.com/repos/AlexBurnes/practice-sort_keys | jq '.size * 1024' | numfmt --to=iec --suffix=B
 
   - name: release-size
     run: |
-      curl -s https://api.github.com/repos/AlexBurnes/pre-push/releases | jq '[.[] | .assets[]?.size] | add' | numfmt --to=iec --suffix=B
+      curl -s https://api.github.com/repos/AlexBurnes/practice-sort_keys | jq '[.[] | .assets[]?.size] | add' | numfmt --to=iec --suffix=B
 
   - name: yaml-project-lint
     run: |
       if [ -e $(which yamllint) ]; then
         yamllint --no-warnings .project.yml
       else
-        echo -e "⚠️ for validate project yml require install yamllint utility"
+        echo "⚠️ for validate project yml require install yamllint utility"
       fi
 
   - name: cppcheck-install
+    shell: bash
     run: |
-      if [ ! -f cppcheck-2.16.0.zip ]; then
-        echo "downloading cppcheck-2.16.0.zip"
-        wget -O "cppcheck-2.16.0.zip" https://github.com/danmar/cppcheck/archive/2.16.0.zip
+      version="2.16.0"
+      install_prefix="/usr/local"
+      installed_version=$(${install_prefix}/bin/cppcheck --version)
+      if [[ ! -z "${installed_version}" && "${installed_version}" =~ "${version}" ]]; then
+        echo "✅ cppcheck ${version} already installed into ${install_prefix}/bin"
+        exit 0
       fi
-      if [ -d "cppcheck-2.16.0" ]; then
-        rm -fr "cppcheck-2.16.0"
-      fi
-      echo "unpack cppcheck-2.16.0.zip"
-      unzip -qq cppcheck-2.16.0.zip
-      cd cppcheck-2.16.0
-      echo "build cppcheck"
-      cmake -H. -Bbuild -DCMAKE_INSTALL_PREFIX=/usr/local
+      [ -d /tmp/cppcheck-${version} ] && rm -fr /tmp/cppcheck-${version}
+      [ -f /tmp/cppcheck-${version}.zip ] && rm -f /tmp/cppcheck-${version}.zip
+      echo "🌐 download cppcheck-${version}.zip"
+      wget -O "/tmp/cppcheck-${version}.zip" https://github.com/danmar/cppcheck/archive/${version}.zip
+      echo "📦 unpack cppcheck-${version}.zip"
+      unzip -qq /tmp/cppcheck-${version}.zip -d /tmp
+      rm -f /tmp/cppcheck-${version}.zip
+      cd /tmp/cppcheck-${version}
+      echo "🏗️ build cppcheck"
+      cmake -H. -Bbuild -DCMAKE_INSTALL_PREFIX=${install_prefix}
       cmake --build build
       cmake --install build
-      if [ ! -e "/usr/local/bin/cppcheck" ]; then
-        echo "fail install cppcheck 2.16.0"
+      rm -fr /tmp/cppcheck-${version}
+      if [ ! -e "${install_prefix}/bin/cppcheck" ]; then
+        echo "⚠️ fail install cppcheck ${version}"
         exit 1
       fi
-      installed_version=$(/usr/local/bin/cppcheck --version)
-      if [ -z "${installed_version}" || ${installed_version} =~ "/^2.16.0/" ]; then
-        echo "fail install cppcheck 2.16.0, /usr/local/bin/cppcheck --version returns another version ${installed_version}"
+      installed_version=$(${install_prefix}/bin/cppcheck --version)
+      if [[ -z "${installed_version}" || ! "${installed_version}" =~ "${version}" ]]; then
+        echo "⚠️ fail install cppcheck ${version}, ${install_prefix}/bin/cppcheck --version returns another version ${installed_version}"
         exit 1
       fi
-      rm -fr cppcheck-2.16.0
-      rm -f cppcheck-2.16.0.zip
-      echo "cppcheck 2.16.0 installed into /usr/local/bin"
-      exit 0
+      echo "✅ cppcheck ${version} installed into ${install_prefix}/bin"

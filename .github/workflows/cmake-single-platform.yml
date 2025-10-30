@@ -22,48 +22,55 @@ jobs:
       run: git submodule init && git submodule update
 
     - name: Install checkers
-      run: sudo apt-get update && sudo apt-get install -y valgrind clang-format-19 wget unzip lcov
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y valgrind clang-format-19 wget unzip lcov python3 python3-pip
+
+    - name: Install buildfab and build tools
+      run: |
+        wget -O - "https://github.com/AlexBurnes/buildfab/releases/latest/download/buildfab-linux-amd64-install.sh" | sudo sh
+        buildfab pre-install
 
     - name: Build cppcheck
       working-directory: ${{github.workspace}}
-      run: sudo scripts/cpp-check install
+      run: sudo buildfab cppcheck-install
 
     - name: Source pre-checks cppcheck
       working-directory: ${{github.workspace}}
-      run: scripts/cpp-check
+      run: buildfab cpp-check
 
     - name: Source pre-checks code style
       working-directory: ${{github.workspace}}
-      run: scripts/style-check
+      run: buildfab style-check
 
-    - name: Configure conan 
+    - name: Configure conan
       run: |
-        sudo apt-get update && sudo apt-get install -y python3 python3-pip
-        python3 -m pip install conan
         conan profile detect --force
         cp ~/.conan2/profiles/default ~/.conan2/profiles/debug && sed -i -e 's/Release/Debug/g' ~/.conan2/profiles/debug
 
     - name: Build third libraries
       working-directory: ${{github.workspace}}
-      run: conan install . -of .build -pr ${{env.CONAN_PROFILE}} --build missing
+      run: buildfab conan-install
 
     - name: Configure CMake
       working-directory: ${{github.workspace}}
-      run: cmake -B .build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake
+      run: buildfab cmake-config
 
     - name: Build
       working-directory: ${{github.workspace}}
-      run: cmake --build .build --config ${{env.BUILD_TYPE}}
+      run: |
+        buildfab cmake-build
+        buildfab cmake-install
 
     - name: Test
       working-directory: ${{github.workspace}}/.build
-      run: ctest -C ${{env.BUILD_TYPE}} -T Test -V
+      run: buildfab run-test
 
     - name: Test benchmark
       working-directory: ${{github.workspace}}
-      run: .build/src/test/test_bench --benchmark_counters_tabular=true
+      run: buildfab benchmark
 
     - name: Source post-checks memory leaks
       working-directory: ${{github.workspace}}
-      run: scripts/mem-check .build/src/test/test_sort_keys
+      run: buildfab mem-check
 

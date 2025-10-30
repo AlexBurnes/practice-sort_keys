@@ -20,22 +20,6 @@ stages:
       - action: git-uncommitted
       - action: git-modified
 
-  images-build:
-    steps:
-      - action: container-build
-        matrix:
-          values:
-            image:
-              - "centos:7"
-              - "centos:8"
-              - "debian:12.7"
-          strategy:
-            max_parallel: 2     # <- run at most N matrix jobs at once (default: all)
-            fail_fast: true     # <- stop scheduling new jobs when any job fails (default: false)
-            continue_on_error: false  # <- if true, stage succeeds even if some jobs fail
-            # (optional) ordering policy; if omitted, natural order is used
-            order: "fifo"       # "fifo" | "random"
-
   build:
     steps:
       - action: pre-check
@@ -54,6 +38,18 @@ stages:
       - action: benchmark
         require: [coverage-test]
 
+  check:
+    steps:
+      - action: check-valgrind
+      - action: check-cppcheck
+      - action: check-clang-format
+      - action: style-check
+        require: [check-clang-format]
+      - action: cpp-check
+        require: [check-cppcheck]
+      - action: mem-check
+        require: [check-valgrind]
+
   make:
     steps:
       - action: cmake-build
@@ -70,62 +66,53 @@ stages:
     steps:
       - action: cmake-install
 
+  images-build:
+    steps:
+      - action: container-build
+        matrix:
+          values:
+            image:
+              - "centos:7"
+              - "centos:8"
+              - "debian:12.7"
+          strategy:
+            max_parallel: 2
+            fail_fast: true
+            continue_on_error: false
+            order: "fifo"
+
 actions:
 
   - name: run-test
-    run: ctest --test-dir .build -T Test -V
+    run: |
+      ctest --test-dir .build -T Test -V
 
   - name: coverage-test
-    run: ctest --test-dir .build -T Coverage
+    run: |
+      ctest --test-dir .build -T Coverage
 
   - name: benchmark
-    run: bin/test_bench --benchmark_counters_tabular=true
+    run: |
+      bin/test_bench --benchmark_counters_tabular=true
 
-  # Dependency installation actions
   - name: conan-install
     run: |
-      # Check for golang package in Conan
-      if ! conan search golang --remote=all 2>/dev/null | grep -q "golang/"; then
-        echo "Creating golang package locally..."
-        conan create conanfile-golang.py --build=missing
-      fi
-      conan install . --build=missing --profile=default
+      conan install . -of .build --build-type ${{version.build-type}} --build=missing --profile=default
 
-  # Build actions
   - name: cmake-config
     run: |
-      # Configure CMake with Conan preset
-      mkdir -p .build
-      # Try to use Conan preset first (CMake 3.23+)
-      if cmake --version | grep -q "3\.2[3-9]\|3\.[3-9]\|[4-9]\." && [ -f "./CMakeUserPresets.json" ]; then
-        echo "Using Conan CMake preset"
-        cmake --preset conan-release
-      else
-        echo "Using manual CMake configuration"
-        cmake -B .build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="/usr/local" -G "Unix Makefiles"
-      fi
+      conan_preset="conan-$(echo ${{version.build-type}} | tr '[:upper:]' '[:lower:]')"
+      cmake --preset ${conan-preset}
 
   - name: cmake-build
     run: |
-      # Build for current platform
-      if cmake --version | grep -q "3\.2[3-9]\|3\.[3-9]\|[4-9]\." && [ -f "./CMakeUserPresets.json" ]; then
-        echo "Building with CMake preset"
-        cmake --build --preset conan-release --target buildfab
-      else
-        echo "Building with manual configuration"
-        cmake --build .build --target buildfab
-      fi
+      conan_preset="conan-$(echo ${{version.build-type}} | tr '[:upper:]' '[:lower:]')"
+      cmake --build --preset ${conan-preset}
 
   - name: cmake-install
     run: |
-      # Install binary to project bin directory using CMake
-      if cmake --version | grep -q "3\.2[3-9]\|3\.[3-9]\|[4-9]\." && [ -f "./CMakeUserPresets.json" ]; then
-        echo "Installing with CMake preset"
-        cmake --build --preset conan-release --target install
-      else
-        echo "Installing with manual configuration"
-        cmake --build .build --target install
-      fi
+      conan_preset="conan-$(echo ${{version.build-type}} | tr '[:upper:]' '[:lower:]')"
+      cmake --build --preset ${conan-preset} --target install
 
   - name: container-build
     container:
@@ -157,11 +144,73 @@ actions:
 
   - name: mem-check
     run: |
-      valgrind --tool=memcheck --leak-check=full --track-origins=yes bin/test_sort_keys
+      valgrind --tool=memcheck --leak-check=full --track-origins=yes bin/${{version.module}}
 
   - name: cpp-check
+    shell: bash
     run: |
-      /usr/local/bin/cppcheck --enable=all --inconclusive --error-exitcode=1 --check-level=exhaustive \
-        --force --checkers-report=cppcheck_report.txt"
-      CPPCHECK_INCLUDE_FILE_DEFAULT=".cppcheck.include"
-      CPPCHECK_SUPPRESS_FILE_DEFAULT=".cppcheck.suppress"
+      # Source directory to check:
+      dirs=(src)
+      # cppcheck command and arguments
+      cppcheck="/usr/local/bin/cppcheck --enable=all --inconclusive --error-exitcode=1 --check-level=exhaustive \
+        -I src/include --include=.cppcheck.include \
+        --suppressions-list=.cppcheck.suppress \
+        --force --checkers-report=/tmp/cppcheck_report.txt"
+      # do cppcheck
+      . build/colors.sh
+      source_dirs=$(find ${dirs[@]} -type d)
+      rc=0
+      for dir in ${source_dirs}; do
+        sources=$(find ${dir} -maxdepth 1 -name *.c* | wc | awk '{print $1}')
+        if [[ ${sources} -gt 1 ]]; then
+          ${cppcheck} ${dir}
+        fi
+      done
+      if [[ ${rc} -gt 0 ]]; then
+        echo -e "❌ ${red}cppcheck found errors, fix the code${clre}"
+        echo -e "review cppcheck report ${bold}/tmp/cppcheck_report.txt${clre}"
+        exit 1
+      fi
+      rm -f /tmp/cppcheck_report.txt
+      echo -e "✅cppcheck ${green}ok${clre}"
+
+  - name: style-check
+    shell: bash
+    run: |
+      # Source directory to scan:
+      dirs=(src)
+      # Clang format command and arguments
+      clang_format="clang-format --output-replacements-xml --style=file:.clang-format.style"
+      # Do code style checking
+      . build/colors.sh
+      if [[ -f ".styleignore" ]]; then
+        source_dirs="$(find ${dirs[@]} -type d)"
+        dirs=()
+        for dir in $(echo ${source_dirs}); do
+          ignore_dir=$(cat .styleignore | grep -e "^${dir}\$" | wc | awk '{print $1}')
+          if [[ ${ignore_dir} -eq 0 ]]; then
+            dirs+=("${dir}")
+          fi
+        done
+      fi
+      tmpfile="/tmp/tmpfile.$RANDOM"
+      for dir in ${dirs[@]}; do
+        find "${dir}" -maxdepth 1 -iname "*.cpp" -o -iname "*.hpp" >> "$tmpfile"
+        find "${dir}" -maxdepth 1 -iname "*.c" -o -iname "*.h" >> "$tmpfile"
+      done
+      ec=0
+      while read -r file; do
+        if ${clang_format} "$file" | grep -q '<replacement '; then
+           echo -e "$file${red} is not in defined format of code style${clre}"
+           echo -e "To fix formatting run: ${bold}$ ${clang_format} -i '$file'${clre}"
+           ec=1
+        fi
+      done < "$tmpfile"
+      rm -f "$tmpfile"
+      if [[ ${ec} -eq 0 ]]; then
+        echo -e "✅ code style check ${green}ok${clre}"
+        exit 0
+      fi
+      echo "❌ code style check ${red}error${clre}"
+      exit 1
+
