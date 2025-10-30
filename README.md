@@ -87,7 +87,7 @@ clang-format-19 --style="file:style_format.txt" source
 ## 🔍 SAST Tools
 
 * [PVS-Studio](https://pvs-studio.com/en/pvs-studio/?utm_source=website&utm_medium=github&utm_campaign=open_source) — Static analyzer for C, C++, C#, and Java code.
-* [Cppcheck](https://www.cppcheck.com)
+* [Cppcheck](https://www.cppcheck.com) — Static analyzer for C, C++.
 
 Run SAST tools using `buildfab`:
 
