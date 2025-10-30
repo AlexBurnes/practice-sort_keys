@@ -1,69 +1,138 @@
-# Student Practice: Sort Keys of Unordered Map Using Different Containers Libraries in C++
+# 🧩 Student Practice: Sorting Keys of an Unordered Map Using Different Container Libraries in C++
 
-**Sort keys of unordered map**
+**Sort keys of an unordered map using different STL containers in C++**
 
-A templated library algorithm for testing different STL containers tests as an example of C++ metaprograming for student practice.
+A lightweight C++ metaprogramming example that demonstrates sorting keys from an `unordered_map` using various standard containers.
+Intended for student practice in templates, algorithms, and modern C++ development.
 
-## Author
+## 🚀 Quick Start
 
-Aleksey.Ozhigov <AlexBurnes@gmail.com>
+Clone the repository and initialize submodules:
+```sh
+git clone https://github.com/AlexBurnes/practice-sort_keys.git
+cd practice-sort_keys
+git submodule update --init
+````
 
-## Version
+### 🐳 Build with Docker
 
-0.2.0
+```sh
+docker build -t practice_sort_keys .
+```
 
-## Change log
+### 🧪 Run Coverage Report
 
-For detail history changes, see [CHANGELOG](CHANGELOG.md)
+```sh
+docker run -d -p 8081:80 practice_sort_keys
+```
 
-## Build
+Then open [http://localhost:8081](http://localhost:8081)
+
+## 📘 About
+
+* Author: **Aleksey Ozhigov** ([AlexBurnes@gmail.com](mailto:AlexBurnes@gmail.com))
+* License: [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0)
+* Version: **0.2.0**
+
+For full build, test, and CI setup details, see the sections below.
+
+## 🕓 Change Log
+
+For detailed change history, see [CHANGELOG](CHANGELOG.md).
+
+## 🏗️ Build
+
+Initialize submodules:
 
 ```sh
 git submodule init
 git submodule update
+````
+
+### 🐳 Build in Docker container
+
+```sh
+docker build --tag practice_sort_keys:latest --network host --progress=plain .
 ```
 
-Build in docker container:
-```
-  docker build --tag practice_sort_keys:latest --network host --progress=plain .
-```
+### 💻 Local build (requires `buildfab` utility)
 
-Build localhost require install buildfab uitility
-```
+```sh
 wget -O - "https://github.com/AlexBurnes/version-go/releases/latest/download/version-linux-amd64-install.sh" | INSTALL_DIR=./build sh
 build/buildfab pre-install
 build/buildfab build
 build/buildfab check
 ```
 
-## Test Coverage
+## 🧪 Test Coverage
 
-To view test coverage, run a Docker container:
+To view test coverage, run the Docker container:
 
 ```sh
 docker run -d --rm --name practice_sort_keys --publish 8081:80 practice_sort_keys
 ```
 
-Then open your browser at [Coverage](http://localhost:8081)
+Then open your browser at [http://localhost:8081](http://localhost:8081).
 
-## Code Style Check
+## 🧹 Code Style Check
 
-For checking code style formatting the clang-format-19 utility is used.
-The format is defined in style_format.txt, which is based on [Google C++ Style Guide](https://google.github.io/styleguide/cppguide.html)
+Code formatting is verified using `clang-format-19`.
+The formatting rules are defined in `style_format.txt`, based on the [Google C++ Style Guide](https://google.github.io/styleguide/cppguide.html).
 
 ```sh
 clang-format-19 --style="file:style_format.txt" source
 ```
 
-## SAST Tools
+## 🔍 SAST Tools
 
-* [PVS-Studio](https://pvs-studio.com/en/pvs-studio/?utm_source=website&utm_medium=github&utm_campaign=open_source) - static analyzer for C, C++, C#, and Java code.
+* [PVS-Studio](https://pvs-studio.com/en/pvs-studio/?utm_source=website&utm_medium=github&utm_campaign=open_source) — Static analyzer for C, C++, C#, and Java code.
 * [Cppcheck](https://www.cppcheck.com)
 
-## License
+Run SAST tools using `buildfab`:
 
-This work is distributed under the [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0), see [LICENSE](https://github.com:AlexBurnes/practice-sort_keys/blob/master/LICENSE) for more information.
+```sh
+build/buildfab pvs-studio-check
+build/buildfab cpp-check
+```
 
-## TODO
+## 🧰 Development Workflow
 
-* [ ] Benchmark memory class instead of defines
+To keep the project clean and ensure it passes CI checks, set up the **pre-push** utility as a Git pre-push hook.
+This utility is installed along with other build tools via `buildfab`.
+Both utilities — `buildfab` and `pre-push` — run the project configuration stage 'pre-push'.
+`pre-push` installed as git push hook run it before each push.
+
+### ⚙️ Set up Git hook
+
+```sh
+build/pre-push install
+```
+
+### 🪶 Automatic Checks on Push
+
+Each time you push changes to a remote repository, `pre-push` will automatically run checks:
+
+```sh
+git push origin ...
+```
+
+To skip these checks (e.g., for intermediate commits), use the `--no-verify` option:
+
+```sh
+git push origin --no-verify ...
+```
+
+You can also run the pre-push stage manually:
+
+```sh
+build/buildfab pre-push -vv
+```
+
+## 📜 License
+
+This project is distributed under the [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0).
+See [LICENSE](https://github.com/AlexBurnes/practice-sort_keys/blob/master/LICENSE) for more information.
+
+## 🧭 TODO
+
+* [ ] Implement a benchmark memory class instead of using defines.
