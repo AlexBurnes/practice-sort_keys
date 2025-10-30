@@ -59,7 +59,7 @@ docker build --tag practice_sort_keys:latest --network host --progress=plain .
 ### 💻 Local build (requires `buildfab` utility)
 
 ```sh
-wget -O - "https://github.com/AlexBurnes/version-go/releases/latest/download/version-linux-amd64-install.sh" | INSTALL_DIR=./build sh
+wget -O - "https://github.com/AlexBurnes/buildfab/releases/latest/download/buildfab-linux-amd64-install.sh" | INSTALL_DIR=./build sh
 build/buildfab pre-install
 build/buildfab build
 build/buildfab check

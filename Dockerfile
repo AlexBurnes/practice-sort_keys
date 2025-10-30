@@ -53,7 +53,7 @@ RUN buildfab style-check
 RUN buildfab build
 RUN buildfab mem-check
 
-RUN bash update-alternatives-clang.sh 19 19
+RUN bash build/update-alternatives-clang.sh 19 19
 
 RUN lcov --directory .build --capture --output-file coverage.info
 RUN lcov --extract coverage.info '*src/*' -o coverage.info

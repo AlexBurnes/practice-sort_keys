@@ -94,7 +94,7 @@ actions:
   # Tool installation actions
   - name: install-conan
     run: |
-      if [ ! -f $(which conan) ]; then
+      if ! which conan >/dev/null 2>&1; then
        echo "Installing Conan package manager..."
        if ! which pip >/dev/null 2>&1; then
          echo "pip is not installed. Please install Python and pip first"

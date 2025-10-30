@@ -29,7 +29,7 @@ jobs:
     - name: Install buildfab and build tools
       run: |
         wget -O - "https://github.com/AlexBurnes/buildfab/releases/latest/download/buildfab-linux-amd64-install.sh" | sudo sh
-        buildfab pre-install
+        buildfab pre-install -vvv
 
     - name: Build cppcheck
       working-directory: ${{github.workspace}}

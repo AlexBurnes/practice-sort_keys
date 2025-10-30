@@ -73,7 +73,7 @@ stages:
         matrix:
           values:
             image:
-              - "ubuntu:22.04"
+              - "ubuntu:latest"
               - "debian:12.7"
           strategy:
             max_parallel: 1
