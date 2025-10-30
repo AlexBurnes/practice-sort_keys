@@ -37,7 +37,7 @@ stages:
       - action: coverage-test
         require: [cmake-build, run-test]
       - action: benchmark
-        require: [cmake-build, coverage-test]
+        require: [cmake-install, coverage-test]
 
   check:
     steps:
