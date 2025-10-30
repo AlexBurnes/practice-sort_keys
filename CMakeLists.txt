@@ -16,7 +16,7 @@
 cmake_minimum_required(VERSION 3.20)
 project(sort_keys CXX)
 
-set(CMAKE_INSTALL_PREFIX "./")
+set(CMAKE_INSTALL_PREFIX "${PROJECT_SOURCE_DIR}")
 set(CMAKE_EXPORT_COMPILE_COMMANDS "On")
 
 include(CTest)
