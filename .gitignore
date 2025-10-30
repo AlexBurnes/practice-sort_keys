@@ -20,3 +20,4 @@ build/version
 
 # secrects
 .env
+.pvs_studio.lic

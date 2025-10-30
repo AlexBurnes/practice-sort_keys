@@ -76,7 +76,7 @@ stages:
               - "ubuntu:22.04"
               - "debian:12.7"
           strategy:
-            max_parallel: 2
+            max_parallel: 1
             fail_fast: true
             continue_on_error: false
             order: "fifo"
@@ -111,7 +111,7 @@ actions:
   - name: cmake-config
     run: |
       preset="conan-$(echo ${{version.build-type}} | tr '[:upper:]' '[:lower:]')"
-      cmake --preset ${preset}
+      cmake --preset ${preset} -DCMAKE_INSTALL_PREFIX="$(pwd)" -DCMAKE_EXPORT_COMPILE_COMMANDS="On"
 
   - name: cmake-build
     run: |
@@ -122,6 +122,22 @@ actions:
     run: |
       preset="conan-$(echo ${{version.build-type}} | tr '[:upper:]' '[:lower:]')"
       cmake --build --preset ${preset} --target install
+
+  - name: ci-pre-install
+    variants:
+      - when: ${{ platform == "linux" && (os == "ubuntu" || os == "debian") }}
+        run: |
+          apt-get update
+          apt-get -y install \
+            git gcc-12 g++-12 clang-format-19 make cmake ninja-build \
+            autoconf automake libtool binutils \
+            libstdc++-12-dev \
+            libdigest-sha-perl libipc-run-perl \
+            google-perftools glibc-source libgoogle-perftools-dev \
+            cppcheck libev-dev libpcre3-dev \
+            gettext flex \
+            python3 python3-pip \
+            lcov wget unzip
 
   - name: container-build
     container:
@@ -210,7 +226,7 @@ actions:
       ec=0
       while read -r file; do
         if ${clang_format} "$file" | grep -q '<replacement '; then
-           echo -e "$file${red} is not in defined format of code style${clre}"
+           echo -e "$file${red} is not in defined formast of code style${clre}"
            echo -e "To fix formatting run: ${bold}$ ${clang_format} -i '$file'${clre}"
            ec=1
         fi
@@ -223,3 +239,9 @@ actions:
       echo "❌ code style check ${red}error${clre}"
       exit 1
 
+  - name: pvs-studio-check
+    run: |
+      pvs-studio-analyzer analyze -l .pvs_studio.lic -f .build/compile_commands.json -a MISRA
+      [ -d pvs-report ] && rm -fr pvs-report
+      plog-converter -a GA:1,2 -t fullhtml -o pvs-report PVS-Studio.log
+      echo "to show report open pvs-report/index.html"

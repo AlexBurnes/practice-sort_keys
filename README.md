@@ -23,7 +23,18 @@ git submodule init
 git submodule update
 ```
 
-docker build --tag practice_sort_keys:latest --network host --progress=plain .
+Build in docker container:
+```
+  docker build --tag practice_sort_keys:latest --network host --progress=plain .
+```
+
+Build localhost require install buildfab uitility
+```
+wget -O - "https://github.com/AlexBurnes/version-go/releases/latest/download/version-linux-amd64-install.sh" | INSTALL_DIR=./build sh
+build/buildfab pre-install
+build/buildfab build
+build/buildfab check
+```
 
 ## Test Coverage
 
@@ -44,7 +55,12 @@ The format is defined in style_format.txt, which is based on [Google C++ Style G
 clang-format-19 --style="file:style_format.txt" source
 ```
 
-# License
+## SAST Tools
+
+* [PVS-Studio](https://pvs-studio.com/en/pvs-studio/?utm_source=website&utm_medium=github&utm_campaign=open_source) - static analyzer for C, C++, C#, and Java code.
+* [Cppcheck](https://www.cppcheck.com)
+
+## License
 
 This work is distributed under the [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0), see [LICENSE](https://github.com:AlexBurnes/practice-sort_keys/blob/master/LICENSE) for more information.
 

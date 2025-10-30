@@ -1,3 +1,6 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: https://pvs-studio.com
+
 // Student practice C++ sort keys of unordered map on different containers libraries
 // Copyright 2025 AlexBurnes@gmail.com
 //

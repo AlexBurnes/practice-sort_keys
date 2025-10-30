@@ -1,5 +1,5 @@
 # export $(grep -v '^#' .env | xargs)
-command git 2>/dev/null || (apk add git) || (apt update && apt install -y git) || (yum -y install git)
+command git 2>/dev/null || (apk add git 2>/dev/null) || (apt update 2>/dev/null && apt install -y git) || (yum -y install git 2>/dev/null)
 
 git clone https://github.com/AlexBurnes/practice-sort_keys  /practice-sort_keys
 cd /practice-sort_keys
@@ -9,10 +9,13 @@ fi
 git submodule init
 git submodule update
 
-echo -e "🔍 platform"
+echo "🔍 platform"
 buildfab platform-view -v
 
-echo -e "🔧 pre-install requirements"
+echo "🔧 install system requirements"
+buildfab ci-pre-install -vv
+
+echo "🔧 install build tools requirements"
 buildfab pre-install -vv
 
 
