@@ -22,7 +22,7 @@ include(cmake/modules.cmake)
 
 include(pedantic)
 
-include(build/sparsepp.cmake)
+include(sparsepp.cmake)
 
 find_package(fmt REQUIRED)
 find_package(range-v3)

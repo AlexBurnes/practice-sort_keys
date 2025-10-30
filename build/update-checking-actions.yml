@@ -20,6 +20,15 @@ actions:
   - name: pre-check
     run: buildfab run pre-check
 
+  # Platform detection
+  - name: platform-view
+    run: |
+      echo "platform: ${{platform}}"
+      echo "arch: '${{arch}}'"
+      echo "os: '${{os}}'"
+      echo "os_version: '${{os_version}}'"
+      echo "cpu: ${{cpu}}"
+
   # Tool check actions
   - name: check-conan
     run: |

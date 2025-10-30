@@ -23,6 +23,7 @@ stages:
   build:
     steps:
       - action: pre-check
+      - action: build-cleanup
       - action: conan-install
         require: [pre-check]
       - action: cmake-config
@@ -32,11 +33,11 @@ stages:
       - action: cmake-install
         require: [cmake-build]
       - action: run-test
-        require: [cmake-build]
+        require: [cmake-install, cmake-build]
       - action: coverage-test
-        require: [run-test]
+        require: [cmake-build, run-test]
       - action: benchmark
-        require: [coverage-test]
+        require: [cmake-build, coverage-test]
 
   check:
     steps:
@@ -95,33 +96,40 @@ actions:
     run: |
       bin/test_bench --benchmark_counters_tabular=true
 
+  - name: build-cleanup
+    run: |
+      [ -d .build ] && rm -fr .build
+      exit 0
+
   - name: conan-install
     run: |
-      conan install . -of .build --build-type ${{version.build-type}} --build=missing --profile=default
+      profile="$(echo ${{version.build-type}} | tr '[:upper:]' '[:lower:]')"
+      [ ! -f "${profile}" ] && profile=default
+      conan install . -of .build --build=missing -pr:h=${profile} -pr:b=${profile} \
+        -c tools.cmake.cmaketoolchain:generator=Ninja \
+        -c tools.build:compiler_executables='{"c":"gcc","cpp":"g++"}'
 
   - name: cmake-config
     run: |
-      conan_preset="conan-$(echo ${{version.build-type}} | tr '[:upper:]' '[:lower:]')"
-      cmake --preset ${conan-preset}
+      preset="conan-$(echo ${{version.build-type}} | tr '[:upper:]' '[:lower:]')"
+      cmake --preset ${preset}
 
   - name: cmake-build
     run: |
-      conan_preset="conan-$(echo ${{version.build-type}} | tr '[:upper:]' '[:lower:]')"
-      cmake --build --preset ${conan-preset}
+      preset="conan-$(echo ${{version.build-type}} | tr '[:upper:]' '[:lower:]')"
+      cmake --build --preset ${preset}
 
   - name: cmake-install
     run: |
-      conan_preset="conan-$(echo ${{version.build-type}} | tr '[:upper:]' '[:lower:]')"
-      cmake --build --preset ${conan-preset} --target install
+      preset="conan-$(echo ${{version.build-type}} | tr '[:upper:]' '[:lower:]')"
+      cmake --build --preset ${preset} --target install
 
   - name: container-build
     container:
       engine: docker
       image:
         from: ${{ matrix.image }}
-      workdir: /src
-      cache:
-        conan: ./.cache
+      workdir: /practice-sort_keys
       env:
         BRANCH: ${{version.branch}}
       cpu: 2

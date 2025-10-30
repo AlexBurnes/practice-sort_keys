@@ -1,3 +1,18 @@
 # export $(grep -v '^#' .env | xargs)
-command git 2>/dev/null || (apk add git) || (apt update && apt install -y git) || (yum -y install git) 
-git clone https://github.com/AlexBurnes/buildfab.git /buildfab
+command git 2>/dev/null || (apk add git) || (apt update && apt install -y git) || (yum -y install git)
+
+git clone https://github.com/AlexBurnes/practice-sort_keys  /practice-sort_keys
+cd /practice-sort_keys
+if [ ! -z "${BRANCH-}" ]; then
+  git checkout ${BRANCH}
+fi
+git submodule init
+git submodule update
+
+echo -e "🔍 platform"
+buildfab platform-view -v
+
+echo -e "🔧 pre-install requirements"
+buildfab pre-install -vv
+
+
