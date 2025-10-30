@@ -359,10 +359,12 @@ actions:
     run: |
       version="2.16.0"
       install_prefix="/usr/local"
-      installed_version=$(${install_prefix}/bin/cppcheck --version)
-      if [[ ! -z "${installed_version}" && "${installed_version}" =~ "${version}" ]]; then
-        echo "✅ cppcheck ${version} already installed into ${install_prefix}/bin"
-        exit 0
+      if [ -e ${install_prefix}/bin/cppcheck ]; then
+       installed_version=$(${install_prefix}/bin/cppcheck --version)
+       if [[ ! -z "${installed_version}" && "${installed_version}" =~ "${version}" ]]; then
+         echo "✅ cppcheck ${version} already installed into ${install_prefix}/bin"
+         exit 0
+       fi
       fi
       [ -d /tmp/cppcheck-${version} ] && rm -fr /tmp/cppcheck-${version}
       [ -f /tmp/cppcheck-${version}.zip ] && rm -f /tmp/cppcheck-${version}.zip
