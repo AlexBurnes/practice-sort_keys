@@ -102,7 +102,8 @@ actions:
 
   - name: conan-install
     run: |
-      profile="$(echo ${{version.build-type}} | tr '[:upper:]' '[:lower:]')"
+      build_type=$(build/version build-type || Debug)
+      profile="$(echo $build_type | tr '[:upper:]' '[:lower:]')"
       [ ! -f "${profile}" ] && profile=default
       conan install . -of .build --build=missing -pr:h=${profile} -pr:b=${profile} \
         -c tools.cmake.cmaketoolchain:generator=Ninja \
@@ -110,17 +111,20 @@ actions:
 
   - name: cmake-config
     run: |
-      preset="conan-$(echo ${{version.build-type}} | tr '[:upper:]' '[:lower:]')"
+      build_type=$(build/version build-type || Debug)
+      preset="conan-$(echo $build_type | tr '[:upper:]' '[:lower:]')"
       cmake --preset ${preset} -DCMAKE_INSTALL_PREFIX="$(pwd)" -DCMAKE_EXPORT_COMPILE_COMMANDS="On"
 
   - name: cmake-build
     run: |
-      preset="conan-$(echo ${{version.build-type}} | tr '[:upper:]' '[:lower:]')"
+      build_type=$(build/version build-type || Debug)
+      preset="conan-$(echo $build_type | tr '[:upper:]' '[:lower:]')"
       cmake --build --preset ${preset}
 
   - name: cmake-install
     run: |
-      preset="conan-$(echo ${{version.build-type}} | tr '[:upper:]' '[:lower:]')"
+      build_type=$(build/version build-type || Debug)
+      preset="conan-$(echo $build_type | tr '[:upper:]' '[:lower:]')"
       cmake --build --preset ${preset} --target install
 
   - name: ci-pre-install
