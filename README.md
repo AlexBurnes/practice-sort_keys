@@ -19,7 +19,7 @@ git submodule update --init
 ```sh
 docker build -t practice_sort_keys .
 ```
-> 📄 See the [`.project.yml`](.project.yml) file to understand the exact build steps and stages used by **buildfab** running in [`Dockerfile`](Dockerfile).
+> 📄 See the [`.project.yml`](.project.yml) file to understand the exact build steps and stages used by **[buildfab](https://github.com/AlexBurnes/buildfab)** running in [`Dockerfile`](Dockerfile).
 
 ### 🧪 Run Coverage Report
 
@@ -60,7 +60,7 @@ docker build --tag practice_sort_keys:latest --network host --progress=plain .
 ### 💻 Local build (requires `buildfab` utility)
 
 The project build logic is fully defined in [`.project.yml`](.project.yml) — including **pre-install**, **build**, **check**, and **test** stages.
-This YAML file describes the dependency graph, build stages, and container environments used by **buildfab**.
+This YAML file describes the dependency graph, build stages, and container environments used by **[buildfab](https://github.com/AlexBurnes/buildfab)**.
 
 ```sh
 wget -O - "https://github.com/AlexBurnes/buildfab/releases/latest/download/buildfab-linux-amd64-install.sh" | INSTALL_DIR=./build sh
