@@ -102,7 +102,7 @@ build/buildfab cpp-check
 
 ## 🧰 Development Workflow
 
-To keep the project clean and ensure it passes CI checks, set up the **pre-push** utility as a Git pre-push hook.
+To keep the project clean and ensure it passes CI checks, set up the **[pre-push](https://github.com/AlexBurnes/pre-push)** utility as a Git pre-push hook.
 This utility is installed along with other build tools via `buildfab`.
 Both utilities — `buildfab` and `pre-push` — run the project configuration stage 'pre-push'.
 `pre-push` installed as git push hook run it before each push.
