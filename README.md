@@ -33,7 +33,7 @@ Then open [http://localhost:8081](http://localhost:8081)
 
 * Author: **Aleksey Ozhigov** ([AlexBurnes@gmail.com](mailto:AlexBurnes@gmail.com))
 * License: [Apache 2.0](https://www.apache.org/licenses/LICENSE-2.0)
-* Version: **0.2.0**
+* Version: **0.2.3**
 
 ## 🕓 Change Log
 
