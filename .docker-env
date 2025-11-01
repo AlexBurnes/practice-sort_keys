@@ -18,8 +18,8 @@ buildfab ci-pre-install -vv
 echo "🔧 install build tools requirements"
 buildfab pre-install -vv
 
-OS=$(scripts/version os)
-OS_VERSION=$(scripts/version os_version)
+OS=$(build/version os)
+OS_VERSION=$(build/version os_version)
 
 echo -e "🔧 init conan cache"
 if [ -d /tmp/buildfab-cache-conan ]; then
