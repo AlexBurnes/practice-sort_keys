@@ -95,34 +95,40 @@ actions:
   - name: install-conan
     run: |
       if ! which conan >/dev/null 2>&1; then
-       echo "Installing Conan package manager..."
-       if ! which pip >/dev/null 2>&1; then
-         echo "pip is not installed. Please install Python and pip first"
-         exit 1
-       fi
-       # Try to install Conan with different methods
-       if pip install conan --break-system-packages 2>/dev/null; then
-         echo "Conan installed successfully with --break-system-packages"
-       elif pip install --user conan 2>/dev/null; then
-         echo "Conan installed successfully in user directory"
-         echo "You may need to add ~/.local/bin to your PATH"
-       elif python3 -m pip install conan --break-system-packages 2>/dev/null; then
-         echo "Conan installed successfully with python3 -m pip"
-       else
-         echo "Failed to install Conan via pip. Please install manually:"
-         echo "  # Option 1: Use system package manager"
-         echo "  sudo apt install conan  # Ubuntu/Debian"
-         echo "  # Option 2: Use pipx"
-         echo "  pipx install conan"
-         echo "  # Option 3: Use virtual environment"
-         echo "  python3 -m venv venv && source venv/bin/activate && pip install conan"
-         exit 1
-       fi
+        echo "Installing Conan package manager..."
+        if ! which pip >/dev/null 2>&1; then
+          echo "pip is not installed. Please install Python and pip first"
+          exit 1
+        fi
+        # Try to install Conan with different methods
+        if pip install conan --break-system-packages 2>/dev/null; then
+          echo "Conan installed successfully with --break-system-packages"
+        elif pip install --user conan 2>/dev/null; then
+          echo "Conan installed successfully in user directory"
+          echo "You may need to add ~/.local/bin to your PATH"
+        elif python3 -m pip install conan --break-system-packages 2>/dev/null; then
+          echo "Conan installed successfully with python3 -m pip"
+        else
+          echo "Failed to install Conan via pip. Please install manually:"
+          echo "  # Option 1: Use system package manager"
+          echo "  sudo apt install conan  # Ubuntu/Debian"
+          echo "  # Option 2: Use pipx"
+          echo "  pipx install conan"
+          echo "  # Option 3: Use virtual environment"
+          echo "  python3 -m venv venv && source venv/bin/activate && pip install conan"
+          exit 1
+        fi
+        if ! which conan >/dev/null 2>&1; then
+          echo "❌ conan install failed"
+        fi
+        conan --version
+        conan profile detect --force
+        profile_path=$(dirname $(conan profile path default))
+        cp ${profile_path}/default ${profile_path}/debug
+        sed -i -e 's/Release/Debug/g' ${profile_path}/debug
       else
-       echo "✅ conan already installed, $(conan --version)"
+        echo "✅ conan already installed, $(conan --version)"
       fi
-
-      conan --version
 
   # Update checking actions
   - name: check-buildfab-releases
@@ -130,18 +136,14 @@ actions:
       echo "Checking for buildfab updates..."
       CURRENT_VERSION=$(buildfab -V 2>/dev/null || echo "v0.0.0")
       echo "Current buildfab version: $CURRENT_VERSION"
-
       # Get latest release from GitHub API
       LATEST_RELEASE=$(curl -s "https://api.github.com/repos/AlexBurnes/buildfab/releases/latest" | grep '"tag_name":' | sed 's/.*"tag_name": "\(.*\)".*/\1/' | sed 's/^v//' || echo "")
-
       if [ -z "$LATEST_RELEASE" ]; then
         echo "⚠️ Could not fetch latest buildfab release from GitHub"
         echo "To check manually: curl -s https://api.github.com/repos/AlexBurnes/buildfab/releases/latest"
         exit 0
       fi
-
       echo "Latest buildfab release: $LATEST_RELEASE"
-
       # Compare versions using sort -V for proper semantic version comparison
       # Simple version comparison using sort -V
       if [ "$CURRENT_VERSION" = "$LATEST_RELEASE" ]; then
@@ -169,16 +171,12 @@ actions:
       if [ -f "build/pre-push" ]; then
         PREPUSH_VERSION=$(build/pre-push -V 2>/dev/null || echo "unknown")
         echo "Current pre-push utility: $PREPUSH_VERSION"
-
         # Get latest pre-push release
         LATEST_RELEASE=$(curl -s "https://api.github.com/repos/AlexBurnes/pre-push/releases/latest" | grep '"tag_name":' | sed 's/.*"tag_name": "\(.*\)".*/\1/' || echo "")
-
         if [ -n "$LATEST_RELEASE" ]; then
           echo "Latest pre-push release: $LATEST_RELEASE"
-
           # Strip 'v' prefix from release tag for comparison
           PREPUSH_CLEAN=$(echo "$LATEST_RELEASE" | sed 's/^v//')
-
           # Compare pre-push utility with latest release
           if [ "$PREPUSH_VERSION" = "$PREPUSH_CLEAN" ]; then
             echo "✅ pre-push utility is up to date: $PREPUSH_VERSION"
@@ -212,13 +210,10 @@ actions:
       if [ -f "build/version" ]; then
         VERSION_UTIL_VERSION=$(build/version -V 2>/dev/null || echo "unknown")
         echo "Current version utility: $VERSION_UTIL_VERSION"
-
         # Get latest version-go release
         VERSION_GO_LATEST=$(curl -s "https://api.github.com/repos/AlexBurnes/version-go/releases/latest" | grep '"tag_name":' | sed 's/.*"tag_name": "\(.*\)".*/\1/' || echo "")
-
         if [ -n "$VERSION_GO_LATEST" ]; then
           echo "Latest version-go release: $VERSION_GO_LATEST"
-
           # Compare version utility with latest version-go (strip 'v' prefix for comparison)
           VERSION_GO_CLEAN=$(echo "$VERSION_GO_LATEST" | sed 's/^v//')
           if [ "$VERSION_UTIL_VERSION" = "$VERSION_GO_CLEAN" ]; then
@@ -303,13 +298,10 @@ actions:
   - name: update-buildfab
     run: |
       echo "Installing latest buildfab ..."
-
       echo "Installing buildfab"
       echo "Platform: ${{ platform }}, Architecture: ${{ arch }}"
-
       # Use the correct install script URL format from README with buildfab variables
       wget -O - "https://github.com/AlexBurnes/buildfab/releases/latest/download/buildfab-${{ platform }}-${{ arch }}-install.sh" | sudo sh
-
       # Verify installation
       if [ -f "$(which buildfab)" ] && buildfab -V >/dev/null 2>&1; then
         echo "✅ buildfab installed successfully: $(buildfab -V)"
@@ -322,13 +314,10 @@ actions:
   - name: update-pre-push
     run: |
       echo "Installing latest pre-push ..."
-
       echo "Installing pre-push"
       echo "Platform: ${{ platform }}, Architecture: ${{ arch }}"
-
       # Use the correct install script URL format from README with buildfab variables
       wget -O - "https://github.com/AlexBurnes/pre-push/releases/latest/download/pre-push-${{ platform }}-${{ arch }}-install.sh" | sudo sh
-
       # Verify installation
       if [ -f "$(which pre-push)" ] && pre-push -V >/dev/null 2>&1; then
         echo "✅ pre-push installed successfully: $(pre-push -V)"
@@ -406,8 +395,9 @@ actions:
          echo "pvs-studio is not installed."
          wget -q -O - https://wcdn.pvs-studio.com/etc/pubkey.txt | apt-key add -
          wget -O /etc/apt/sources.list.d/viva64.list https://wcdn.pvs-studio.com/etc/viva64.list
-         apt-get update
-         apt-get install pvs-studio
+         apt-get update -y
+         apt-get install -y pvs-studio
+         apt-get clean
          if ! which pws-studio >/dev/null 2>&1; then
              echo "failed install pvs-studio"
              exit 1

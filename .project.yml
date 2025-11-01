@@ -69,6 +69,7 @@ stages:
 
   images-build:
     steps:
+      - action: makedir-cache
       - action: container-build
         matrix:
           values:
@@ -80,6 +81,7 @@ stages:
             fail_fast: true
             continue_on_error: false
             order: "fifo"
+        require: [makedir-cache]
 
 actions:
 
@@ -141,7 +143,15 @@ actions:
             cppcheck libev-dev libpcre3-dev \
             gettext flex \
             python3 python3-pip \
-            lcov wget unzip
+            lcov wget unzip valgrind
+          apt clean
+          apt autoremove --purge -y
+          bash build/update-alternatives-clang.sh 19 19 || true
+
+  - name: makedir-cache
+    run: |
+      [ ! -d .cache ] && mkdir .cache
+      exit 0
 
   - name: container-build
     container:
@@ -149,6 +159,8 @@ actions:
       image:
         from: ${{ matrix.image }}
       workdir: /practice-sort_keys
+      cache:
+        conan: .cache
       env:
         BRANCH: ${{version.branch}}
       cpu: 2
@@ -245,6 +257,7 @@ actions:
 
   - name: pvs-studio-check
     run: |
+      [ ! -f .pvs_studio.lic ] && pvs-studio-analyzer credentials -o .pvs_studio.lic PVS-Studio Free FREE-FREE-FREE-FREE
       pvs-studio-analyzer analyze -l .pvs_studio.lic -f .build/compile_commands.json -a MISRA
       [ -d pvs-report ] && rm -fr pvs-report
       plog-converter -a GA:1,2 -t fullhtml -o pvs-report PVS-Studio.log

@@ -18,8 +18,5 @@ buildfab ci-pre-install -vv
 echo "🔧 install build tools requirements"
 buildfab pre-install -vv
 
-echo "⚙️ setup conan profile"
-conan profile detect --force
-cp ~/.conan2/profiles/default ~/.conan2/profiles/debug && sed -i -e 's/Release/Debug/g' ~/.conan2/profiles/debug
 
 

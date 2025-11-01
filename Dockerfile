@@ -18,43 +18,42 @@ FROM debian:12.7 as builder
 ENV DEBIAN_FRONTEND=noninteractive \
     CONAN_PATH=.conan2
 
-RUN apt-get update && \
-    apt-get -y install \
-    git make cmake ninja-build \
-    gcc-12 g++-12 libstdc++-12-dev \
-    clang-19 clang-tools-19 clang-format-19 \
-    autoconf automake libtool binutils \
-    libdigest-sha-perl libipc-run-perl \
-    google-perftools glibc-source libgoogle-perftools-dev \
-    cppcheck libev-dev libpcre3-dev \
-    gettext flex \
-    python3 python3-pip \
-    lcov wget unzip
-
-RUN pip3 install conan --break-system-packages && \
-    mkdir build && \
-    cd build && \
-    conan profile detect --force
-
-#RUN cp ~/.conan2/profiles/default ~/.conan2/profiles/debug && sed -i -e 's/Release/Debug/g' ~/.conan2/profiles/debug
-
-RUN apt-get -y install \
-    valgrind
+RUN apt-get update && apt-get -y install wget which && apt clean
 
 RUN wget -O - "https://github.com/AlexBurnes/buildfab/releases/latest/download/buildfab-linux-amd64-install.sh" | sh
 
 WORKDIR build
 COPY . .
 
+# Install system build packages
+RUN buildfab ci-pre-install
+
+# Install buildfab build tools
 RUN buildfab pre-install
+
+# Install cppcheck from tarball
 RUN buildfab cppcheck-install
+
+# PVS-Studio install, uncomment if require
+# RUN buildfab install-pvs-studio
+
+# Static analyze of source code
 RUN buildfab cpp-check
+
+# Check code style
 RUN buildfab style-check
-RUN buildfab build
+
+# Build and test code
+RUN buildfab build -vv
+
+# PVS-Studio analyze of source code on compile commands log
+# Init Free PVS-Studio License for Students and Teachers: https://pvs-studio.com/en/order/for-students/
+# RUN buildfab pvs-studio-check
+
+# Check build binary on memory leaks
 RUN buildfab mem-check
 
-RUN bash build/update-alternatives-clang.sh 19 19
-
+# Generate coverage report
 RUN lcov --directory .build --capture --output-file coverage.info
 RUN lcov --extract coverage.info '*src/*' -o coverage.info
 RUN genhtml --demangle-cpp -o coverage coverage.info
@@ -67,7 +66,8 @@ LABEL org.opencontainers.image.author="Aleksey.Ozhigov<AlexBurnes@gmail.com>"
 LABEL org.opencontainers.image.source="github.com:AlexBurnes/practice_sort_keys.git"
 
 RUN apt-get update && \
-    apt-get install -y libgoogle-perftools4 nginx
+    apt-get install -y libgoogle-perftools4 nginx && \
+    apt-get clean
 
 COPY --from=builder /build/bin/* /usr/local/bin/*
 COPY --from=builder /build/coverage /var/www/html
