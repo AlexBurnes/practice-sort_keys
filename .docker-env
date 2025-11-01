@@ -15,6 +15,14 @@ buildfab platform-view -v
 echo "🔧 install system requirements"
 buildfab ci-pre-install -vv
 
+echo -e "🔧 init conan cache"
+if [ -d /tmp/buildfab-cache-conan ]; then
+    CACHE_DIR=/tmp/buildfab-cache-conan/${OS}${OS_VERSION}/.conan2
+    mkdir -p ${CACHE_DIR}
+    rm -fr ${HOME}/.conan2
+    ln -s ${CACHE_DIR} ${HOME}/.conan2
+fi
+
 echo "🔧 install build tools requirements"
 buildfab pre-install -vv
 

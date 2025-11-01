@@ -160,7 +160,7 @@ actions:
         from: ${{ matrix.image }}
       workdir: /practice-sort_keys
       cache:
-        conan: .cache
+        conan: ./.cache
       env:
         BRANCH: ${{version.branch}}
       cpu: 2
