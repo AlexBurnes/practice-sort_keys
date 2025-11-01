@@ -77,7 +77,7 @@ stages:
               - "ubuntu:latest"
               - "debian:12.7"
           strategy:
-            max_parallel: 1
+            max_parallel: 2
             fail_fast: true
             continue_on_error: false
             order: "fifo"
